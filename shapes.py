@@ -12,11 +12,13 @@ class Actions:
         self.registered = {
             'cuadrado': self.square,
             'circulo': self.circle,
-            # 'triangulo': self.shapes.triangle,
+            'triangulo': self.triangle,
+            'poligono': self.polygon,
             'linea': self.line,
             'xy': self.move_to_xy,
             'rotar': self.rotate,
             'grilla': self.grid,
+            # 'limpiar': self.clear,
         }
 
     def line(self, x_pos: int, y_pos: int):
@@ -50,29 +52,32 @@ class Actions:
     #     for _ in range(3):
     #         tur.forward(l)
     #         tur.left(120)
+
     def do_fastest(self, func, *args, **kwargs):
         """Execute the given function with the fastest speed."""
 
-        prev_color = self.tur.pencolor()
-        prev_speed = self.tur.speed()
-        prev_pos = self.tur.pos()
-        prev_tracer = self.tur._tracer() # type: ignore pylint: disable=protected-access
+        # _pos = self.tur.pos()
+        # _color = self.tur.pencolor()
+        _speed = self.tur.speed()
+        _tracer = self.tur._tracer()  # type: ignore pylint: disable=protected-access
+
         self.tur.speed("fastest")
-        self.tur.color("lightgray")
-        self.tur._tracer(0) # type: ignore pylint: disable=protected-access
+        self.tur._tracer(0)  # type: ignore pylint: disable=protected-access
 
         res = func(*args, **kwargs)
 
-        self.move_to_xy(*prev_pos)
-        self.tur.color(prev_color)
-        self.tur.speed(prev_speed)
-        self.tur._tracer(prev_tracer) # type: ignore pylint: disable=protected-access
+        # self.move_to_xy(*_pos)
+        # self.tur.color(_color)
+        self.tur.speed(_speed)
+        self.tur._tracer(_tracer) # type: ignore pylint: disable=protected-access
         # tur.update()
         return res
 
     def grid(self):
         """Draw a grid."""
-
+        _pos = self.tur.pos()
+        _color = self.tur.pencolor()
+        self.tur.color("lightgray")
         self.move_to_xy(-250, 250)
         for func in [lambda y: (-250, y), lambda x: (x, 250)]:
             for _ in range(-250, 251, 10):
@@ -90,3 +95,20 @@ class Actions:
         self.move_to_xy(0, -250)
         self.tur.forward(500)
         self.tur.seth(0)
+        self.move_to_xy(*_pos)
+        self.tur.color(_color)
+
+    def clear(self):
+        """Clear the screen."""
+        self.tur.clear()
+
+    def polygon(self, *points: tuple):
+        """Draw a polygon with the given points."""
+        _pos = self.tur.pos()
+        for point in points:
+            self.tur.goto(*point)
+        self.tur.goto(*_pos)
+
+    def triangle(self, point1: tuple, point2: tuple):
+        """Draw a triangle with the given points."""
+        self.polygon(point1, point2)
