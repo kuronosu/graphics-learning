@@ -1,0 +1,93 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background-color: whitesmoke;
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+}
+
+ol,
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.panels {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: calc(100% - 40px);
+}
+
+.panel {
+  height: 100%;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 1.5em;
+  /* transition: all 0.5s; */
+  padding: 0 20px;
+  margin: 0;
+}
+
+.left-panel,
+.right-panel {
+  width: 20%;
+}
+
+.center-panel {
+  width: 60%;
+  border-left: 1px solid #333;
+  border-right: 1px solid #333;
+  /* background-color: blue; */
+}
+
+.center-panel > canvas {
+  width: 600px;
+  height: 600px;
+  border: 1px solid #333;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: 100%;
+  color: whitesmoke;
+}
+
+#command-entry {
+  width: 100%;
+  border: none;
+  color: black;
+  font-size: 1.5em;
+  margin: 10px 20px;
+  background-color: transparent;
+  border-bottom: 2px solid #333;
+}
+
+#command-entry:focus {
+  outline: none;
+  border-bottom: 2px solid black;
+  text-align: center;
+}

@@ -1,2 +1,5 @@
 .vscode/
 **.pyc
+.snowpack
+build
+node_modules
