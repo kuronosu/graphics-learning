@@ -1,16 +1,8 @@
 import { getCanvasCartesianPoint } from './common';
 import Pen from './pen';
 
-function sleep(milliseconds: number) {
-  return new Promise<void>((resolve) => {
-    var start = new Date().getTime();
-    while (true) {
-      if (new Date().getTime() - start >= milliseconds) {
-        break;
-      }
-    }
-    resolve();
-  });
+async function sleep(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds))
 }
 
 export class Drawer {
@@ -81,64 +73,54 @@ export class Drawer {
 
   fill = async () => {
     this._ctx.save();
-    const _ = async (f: (x: number, y: number) => number[][]) => {
-      const visited: { [key: string]: boolean } = {};
-      this._ctx.fillStyle = this._pen.hexColor;
-      //Flooding fill
-      const next: number[][] = [];
-      const { x, y } = getCanvasCartesianPoint(
-        this._pen.position.x,
-        this._pen.position.x,
-        this._ctx,
-      );
-      next.push([x, y]);
+    const toPaint: number[][] = []
+    const visited: { [key: string]: boolean } = {};
+    this._ctx.fillStyle = this._pen.hexColor;
+    //Flooding fill
+    const next: number[][] = [];
+    const { x, y } = getCanvasCartesianPoint(
+      this._pen.position.x,
+      this._pen.position.x,
+      this._ctx,
+    );
+    next.push([x, y]);
 
-      while (next.length > 0) {
-        const [x, y] = next.shift()!;
-        if (visited[`${x},${y}`] === true) {
-          continue;
-        }
-        visited[`${x},${y}`] = true;
-        const pixel = this._ctx.getImageData(x, y, 1, 1).data;
-        if (
-          (pixel[0] === 255 && pixel[1] === 255 && pixel[2] === 255) ||
-          (pixel[0] === 0 && pixel[1] === 0 && pixel[2] === 0 && pixel[3] === 0)
-        ) {
-          if (this.animationSpeed > 0) {
-            await sleep(this.animationSpeed);
-          }
-          this._ctx.fillRect(x, y, 1, 1);
-          next.push(...f(x, y));
-        }
+    while (next.length > 0) {
+      const [x, y] = next.shift()!;
+      if (visited[`${x},${y}`] === true) {
+        continue;
       }
-    };
-
-    if (this.animationSpeed > 0) {
-      await Promise.all([
-        _((x, y) => [
-          [x + 1, y],
-          [x, y + 1],
-        ]),
-        _((x, y) => [
-          [x - 1, y],
-          [x, y - 1],
-        ]),
-        _((x, y) => [
-          [x + 1, y],
-          [x, y - 1],
-        ]),
-        _((x, y) => [
-          [x - 1, y],
-          [x, y + 1],
-        ]),
-      ]);
-    } else {
-      await _((x, y) => [
-        [x + 1, y],
+      visited[`${x},${y}`] = true;
+      const pixel = this._ctx.getImageData(x, y, 1, 1).data;
+      if (
+        (pixel[0] === 255 && pixel[1] === 255 && pixel[2] === 255) ||
+        (pixel[0] === 0 && pixel[1] === 0 && pixel[2] === 0 && pixel[3] === 0)
+      ) {
+        if (this.animationSpeed > 0) {
+          toPaint.push([x, y])
+        } else {
+          this._ctx.fillRect(x, y, 1, 1);
+        }
+        next.push(...[[x + 1, y],
         [x, y + 1],
         [x - 1, y],
         [x, y - 1],
-      ]);
+        ]);
+      }
+    }
+
+    if (this.animationSpeed > 0) {
+      let c = 0;
+      const n = 1000 / this.animationSpeed;
+      const batch = toPaint.length / n;
+      for (const p of toPaint) {
+        if (c>batch) {
+          await sleep(this.animationSpeed);
+          c = 0;
+        }
+        c++;
+        this._ctx.fillRect(p[0], p[1], 1, 1);
+      }
     }
 
     this._ctx.restore();

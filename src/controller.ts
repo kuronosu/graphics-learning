@@ -10,7 +10,7 @@ export class Controller {
   private _drawer: Drawer;
   private _redraw: boolean;
   private _isDrawing: ObservableValue<boolean>;
-  public animateLastCommand = false; // TODO: check
+  public animateLastCommand = true; // TODO: check
   private _changeFromHistorySearch = false;
 
   constructor(context: CanvasRenderingContext2D) {
@@ -59,7 +59,7 @@ export class Controller {
           idx === this._drawHistory.past.length - 1
         ) {
           console.log('setting animation speed to 0.1');
-          this._drawer.animationSpeed = 0.5;
+          this._drawer.animationSpeed = 10;
         }
         await command.run();
         idx++;
