@@ -70,10 +70,11 @@ ul {
   /* background-color: blue; */
 }
 
-.center-panel > canvas {
+#canvas {
   width: 600px;
   height: 600px;
   border: 1px solid #333;
+  z-index: 2;
 }
 
 .controls {
@@ -103,4 +104,16 @@ ul {
 
 .future {
   color: #999;
+}
+
+#grid {
+  position: absolute;
+  z-index: 1;
+  border: 1px solid #333;
+  width: 600px;
+  height: 600px;
+}
+
+.hidden {
+  display: none;
 }

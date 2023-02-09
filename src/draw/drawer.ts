@@ -1,6 +1,10 @@
 import { getCanvasCartesianPoint } from './common';
 import Pen from './pen';
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export class Drawer {
   private _pen: Pen;
   private _ctx: CanvasRenderingContext2D;
@@ -18,32 +22,6 @@ export class Drawer {
     return this._ctx;
   }
 
-  grid() {
-    const { width, height } = this._ctx.canvas;
-    const x = width / 2;
-    const y = height / 2;
-
-    this._ctx.save();
-    this._ctx.beginPath();
-    this._ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-    this._ctx.lineWidth = 1;
-    for (let i = 0; i < width; i += 10) {
-      this._ctx.moveTo(i, 0);
-      this._ctx.lineTo(i, height);
-    }
-    for (let i = 0; i < height; i += 10) {
-      this._ctx.moveTo(0, i);
-      this._ctx.lineTo(width, i);
-    }
-    this._ctx.moveTo(0, y);
-    this._ctx.lineTo(width, y);
-    this._ctx.moveTo(x, 0);
-    this._ctx.lineTo(x, height);
-    this._ctx.stroke();
-    this._ctx.restore();
-    this._ctx.closePath();
-  }
-
   up = () => {
     this._pen.up();
   };
@@ -58,6 +36,8 @@ export class Drawer {
   };
 
   forward = ({ distance }: { distance: number }) => {
+    this._ctx.save();
+    this._ctx.strokeStyle = this._pen.hexColor;
     const x = this._pen.position.x + distance * Math.cos(this._pen.angle);
     const y = this._pen.position.y + distance * Math.sin(this._pen.angle);
     const newPos = getCanvasCartesianPoint(x, y, this._ctx);
@@ -66,6 +46,7 @@ export class Drawer {
     this._pen.move(x, y);
     this._pen.sync(this._ctx);
     this._ctx.stroke();
+    this._ctx.restore();
   };
 
   backward = ({ distance }: { distance: number }) => {
@@ -82,6 +63,46 @@ export class Drawer {
 
   right = ({ angle }: { angle: number }) => {
     this._pen.rotate(-angle);
+  };
+
+  color = ({ r, g, b }: { r: number; g: number; b: number }) => {
+    this._pen.color = { r, g, b };
+    this._pen.sync(this._ctx);
+  };
+
+  fill = () => {
+    this._ctx.save();
+    this._ctx.fillStyle = this._pen.hexColor;
+    //Flooding fill
+    const visited: { [key: string]: boolean } = {};
+    const next: number[][] = [];
+    const { x, y } = getCanvasCartesianPoint(
+      this._pen.position.x,
+      this._pen.position.x,
+      this._ctx,
+    );
+    next.push([x, y]);
+
+    while (next.length > 0) {
+      const [x, y] = next.pop()!;
+      if (visited[`${x},${y}`] === true) {
+        continue;
+      }
+      visited[`${x},${y}`] = true;
+      const pixel = this._ctx.getImageData(x, y, 1, 1).data;
+      if (
+        (pixel[0] === 255 && pixel[1] === 255 && pixel[2] === 255) ||
+        (pixel[0] === 0 && pixel[1] === 0 && pixel[2] === 0 && pixel[3] === 0)
+      ) {
+        this._ctx.fillRect(x, y, 1, 1);
+        next.push([x + 1, y]);
+        next.push([x - 1, y]);
+        next.push([x, y + 1]);
+        next.push([x, y - 1]);
+      }
+    }
+
+    this._ctx.restore();
   };
 
   // forward(distance)

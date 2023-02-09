@@ -21,6 +21,7 @@ export default class Pen {
   private _isDown: boolean;
   private _isVisible: boolean;
   private _position: { x: number; y: number };
+  private _color: { r: number; g: number; b: number };
   shape: keyof typeof _shapes;
 
   constructor() {
@@ -28,11 +29,35 @@ export default class Pen {
     this._isDown = true;
     this._isVisible = true;
     this._position = { x: 0, y: 0 };
+    this._color = { r: 0, g: 0, b: 0 };
     this.shape = _DEFAULT_SHAPE;
   }
 
   get angle() {
     return this._angle;
+  }
+
+  get color() {
+    return this._color;
+  }
+
+  set color(color: { r: number; g: number; b: number }) {
+    this._color = color;
+  }
+
+  get hexColor() {
+    const r = this._color.r.toString(16),
+      g = this._color.g.toString(16),
+      b = this._color.b.toString(16);
+    const _ = (x: string) => (x.length == 1 ? `0${x}` : `${x}`);
+    return `#${_(r)}${_(g)}${_(b)}`;
+  }
+
+  set hexColor(hex: string) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    this._color = { r, g, b };
   }
 
   set angle(angle: number) {

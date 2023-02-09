@@ -8,13 +8,11 @@ export class Controller {
   private _drawHistory: HistoryManager<Command<any>>;
   private _drawer: Drawer;
   private _redraw: boolean;
-  private _showGrid: boolean;
 
   constructor(context: CanvasRenderingContext2D) {
     this._redraw = true;
     this._drawHistory = new HistoryManager();
     this._drawer = new Drawer(context);
-    this._showGrid = true;
 
     this._drawHistory.observe((h) => this.draw());
   }
@@ -31,9 +29,6 @@ export class Controller {
     if (this._redraw) {
       clearCtx(this._drawer.ctx);
       this._drawer.pen.reset();
-      if (this._showGrid) {
-        this._drawer.grid();
-      }
       this._drawer.ctx.beginPath();
       this._drawer.xy({ x: 0, y: 0 });
       for (const command of this._drawHistory.past) {
@@ -44,17 +39,12 @@ export class Controller {
     }
   }
 
-  toogleGrid() {
-    this._showGrid = !this._showGrid;
-    this._redraw = true;
-    this.draw();
-  }
-
   get commandsArgCount() {
     return {
       arriba: [0, this.up],
       abajo: [0, this.down],
       limpiar: [0, this.clear],
+      relleno: [0, this.fill],
 
       izquierda: [1, this.left],
       angulo: [1, this.angle],
@@ -63,6 +53,8 @@ export class Controller {
       atras: [1, this.backward],
 
       xy: [2, this.xy],
+
+      color: [3, this.color],
     };
   }
 
@@ -73,13 +65,13 @@ export class Controller {
     return args.length === this.commandsArgCount[fn][0];
   }
 
-  run(command: string): Error | null {
+  run(command: string) {
     const cmd = detectFunctionCall(command);
     if (cmd === null) {
-      return new Error('Invalid command');
+      throw new Error('Invalid command');
     }
     if (!Object.keys(this.commandsArgCount).includes(cmd.name)) {
-      return new Error('Invalid command');
+      throw new Error('Invalid command');
     }
     if (
       !this._validateCommandArgs(
@@ -87,7 +79,7 @@ export class Controller {
         cmd.name as keyof typeof this.commandsArgCount,
       )
     ) {
-      return new Error('Invalid command');
+      throw new Error('Invalid command');
     }
     const [n, fn] =
       this.commandsArgCount[cmd.name as keyof typeof this.commandsArgCount];
@@ -97,8 +89,13 @@ export class Controller {
       (fn as (v: number) => void)(cmd.args[0]);
     } else if (n === 2) {
       (fn as (v1: number, v2: number) => void)(cmd.args[0], cmd.args[1]);
+    } else if (n === 3) {
+      (fn as (v1: number, v2: number, v3: number) => void)(
+        cmd.args[0],
+        cmd.args[1],
+        cmd.args[2],
+      );
     }
-    return null;
   }
 
   // Commands
@@ -140,4 +137,17 @@ export class Controller {
   right = (angle: number) => {
     this._addCommand(new Command('derecha', this._drawer.right, { angle }));
   };
+
+  color = (r: number, g: number, b: number) => {
+    if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+      throw new Error('Invalid color');
+    }
+    this._addCommand(new Command('color', this._drawer.color, { r, g, b }));
+  };
+
+  fill = () => {
+    this._addCommand(new Command('relleno', this._drawer.fill, {}));
+  };
+
+  // End Commands
 }

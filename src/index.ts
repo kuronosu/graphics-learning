@@ -9,6 +9,32 @@ function createLI(text: string, className?: string) {
   return $li;
 }
 
+function grid(ctx: CanvasRenderingContext2D) {
+  const { width, height } = ctx.canvas;
+  const x = width / 2;
+  const y = height / 2;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < width; i += 10) {
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, height);
+  }
+  for (let i = 0; i < height; i += 10) {
+    ctx.moveTo(0, i);
+    ctx.lineTo(width, i);
+  }
+  ctx.moveTo(0, y);
+  ctx.lineTo(width, y);
+  ctx.moveTo(x, 0);
+  ctx.lineTo(x, height);
+  ctx.stroke();
+  ctx.restore();
+  ctx.closePath();
+}
+
 function main() {
   const $commandEntry = document.getElementById(
     'command-entry',
@@ -17,6 +43,8 @@ function main() {
     'history-container',
   ) as HTMLOListElement;
   const $canvas = document.getElementById('canvas') as HTMLCanvasElement;
+  const $canvasGrid = document.getElementById('grid') as HTMLCanvasElement;
+  grid($canvasGrid.getContext('2d')!);
 
   const drawer = new Controller($canvas.getContext('2d')!);
 
@@ -40,14 +68,17 @@ function main() {
       e.preventDefault();
       drawer.history.redo();
     } else if (e.key === 'g') {
-      drawer.toogleGrid();
+      $canvasGrid.classList.toggle('hidden');
     }
   });
 
   $commandEntry.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      if (drawer.run($commandEntry.value) == null) {
+      try {
+        drawer.run($commandEntry.value);
         $commandEntry.value = '';
+      } catch (err) {
+        alert(err);
       }
     } else if (e.key === 'ArrowUp') {
       const cmd = drawer.history.search.backward();
@@ -61,6 +92,7 @@ function main() {
   drawer.run('limpiar()');
 
   const example = `
+color(255, 0, 0)
 arriba()
 atras(70.711)
 abajo()
@@ -74,6 +106,8 @@ derecha(90)
 adelante(100)
 angulo(0)
 xy(0,0)
+color(0, 0, 0)
+relleno()
   `;
 
   for (const command of example.split('\n')) {
