@@ -118,7 +118,7 @@ export default class Pen {
         ctx.lineTo(cx, cy);
       }
 
-      ctx.fillStyle = 'green';
+      ctx.fillStyle = this.isDown ? 'green' : 'red';
       ctx.fill();
       this.sync(ctx);
       ctx.restore();

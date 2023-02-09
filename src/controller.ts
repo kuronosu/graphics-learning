@@ -4,20 +4,6 @@ import { HistoryManager } from './utils/history';
 import { clearCtx } from './draw/common';
 import { Drawer } from './draw/drawer';
 
-type validCommands =
-  | 'xy'
-  | 'forward'
-  | 'angle'
-  | 'left'
-  | 'right'
-  | 'clear'
-  | 'backward'
-  | 'up'
-  | 'down';
-type CeroArgCommand = 'clear' | 'up' | 'down';
-type OneArgCommand = 'forward' | 'angle' | 'left' | 'right' | 'backward';
-type TwoArgCommand = 'xy';
-
 export class Controller {
   private _drawHistory: HistoryManager<Command<any>>;
   private _drawer: Drawer;
@@ -64,8 +50,27 @@ export class Controller {
     this.draw();
   }
 
-  private _validateCommandArgs(args: number[], fn: validCommands) {
-    return args.length === this._commands[fn];
+  get commandsArgCount() {
+    return {
+      arriba: [0, this.up],
+      abajo: [0, this.down],
+      limpiar: [0, this.clear],
+
+      izquierda: [1, this.left],
+      angulo: [1, this.angle],
+      derecha: [1, this.right],
+      adelante: [1, this.forward],
+      atras: [1, this.backward],
+
+      xy: [2, this.xy],
+    };
+  }
+
+  private _validateCommandArgs(
+    args: number[],
+    fn: keyof typeof this.commandsArgCount,
+  ) {
+    return args.length === this.commandsArgCount[fn][0];
   }
 
   run(command: string): Error | null {
@@ -73,73 +78,66 @@ export class Controller {
     if (cmd === null) {
       return new Error('Invalid command');
     }
-    if (!Object.keys(this._commands).includes(cmd.name)) {
+    if (!Object.keys(this.commandsArgCount).includes(cmd.name)) {
       return new Error('Invalid command');
     }
-    if (!this._validateCommandArgs(cmd.args, cmd.name as validCommands)) {
+    if (
+      !this._validateCommandArgs(
+        cmd.args,
+        cmd.name as keyof typeof this.commandsArgCount,
+      )
+    ) {
       return new Error('Invalid command');
     }
-    if (this._commands[cmd.name as validCommands] === 0) {
-      this[cmd.name as CeroArgCommand]();
-    } else if (this._commands[cmd.name as validCommands] === 1) {
-      this[cmd.name as OneArgCommand](cmd.args[0]);
-    } else if (this._commands[cmd.name as validCommands] === 2) {
-      this[cmd.name as TwoArgCommand](cmd.args[0], cmd.args[1]);
+    const [n, fn] =
+      this.commandsArgCount[cmd.name as keyof typeof this.commandsArgCount];
+    if (n === 0) {
+      (fn as () => void)();
+    } else if (n === 1) {
+      (fn as (v: number) => void)(cmd.args[0]);
+    } else if (n === 2) {
+      (fn as (v1: number, v2: number) => void)(cmd.args[0], cmd.args[1]);
     }
     return null;
   }
 
   // Commands
-  private _commands: {
-    [key in validCommands]: number;
-  } = {
-    clear: 0,
-    up: 0,
-    down: 0,
-    left: 1,
-    angle: 1,
-    right: 1,
-    forward: 1,
-    backward: 1,
-    xy: 2,
+
+  up = () => {
+    this._addCommand(new Command('arriba', this._drawer.up, {}));
   };
 
-  up() {
-    this._addCommand(new Command('up', this._drawer.up, {}));
-  }
+  down = () => {
+    this._addCommand(new Command('abajo', this._drawer.down, {}));
+  };
 
-  down() {
-    this._addCommand(new Command('down', this._drawer.down, {}));
-  }
-
-  clear() {
+  clear = () => {
     this._drawHistory.clear();
-  }
+  };
 
-  xy(x: number, y: number) {
+  xy = (x: number, y: number) => {
     this._addCommand(new Command('xy', this._drawer.xy, { x, y }));
-  }
+  };
 
-  forward(distance: number) {
+  forward = (distance: number) => {
     this._addCommand(
-      new Command('forward', this._drawer.forward, { distance }),
+      new Command('adelante', this._drawer.forward, { distance }),
     );
-  }
-  backward(distance: number) {
-    this._addCommand(
-      new Command('backward', this._drawer.backward, { distance }),
-    );
-  }
+  };
 
-  angle(angle: number) {
-    this._addCommand(new Command('angle', this._drawer.angle, { angle }));
-  }
+  backward = (distance: number) => {
+    this._addCommand(new Command('atras', this._drawer.backward, { distance }));
+  };
 
-  left(angle: number) {
-    this._addCommand(new Command('left', this._drawer.left, { angle }));
-  }
+  angle = (angle: number) => {
+    this._addCommand(new Command('angulo', this._drawer.angle, { angle }));
+  };
 
-  right(angle: number) {
-    this._addCommand(new Command('right', this._drawer.right, { angle }));
-  }
+  left = (angle: number) => {
+    this._addCommand(new Command('izquierda', this._drawer.left, { angle }));
+  };
+
+  right = (angle: number) => {
+    this._addCommand(new Command('derecha', this._drawer.right, { angle }));
+  };
 }

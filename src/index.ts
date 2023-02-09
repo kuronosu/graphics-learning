@@ -1,5 +1,4 @@
 import { Controller } from './controller';
-import times from './utils/times';
 
 function createLI(text: string, className?: string) {
   const $li = document.createElement('li');
@@ -59,18 +58,29 @@ function main() {
     }
   });
 
-  drawer.run('clear()');
+  drawer.run('limpiar()');
 
-  drawer.run('up()');
-  drawer.run('backward(70.711)');
-  drawer.run('down()');
-  drawer.run('left(45)');
-  times(5, (i) => {
-    drawer.run('forward(100)');
-    i !== 4 && drawer.run('right(90)');
-  });
-  drawer.run('angle(0)');
-  drawer.run('xy(0,0)');
+  const example = `
+arriba()
+atras(70.711)
+abajo()
+izquierda(45)
+adelante(100)
+derecha(90)
+adelante(100)
+derecha(90)
+adelante(100)
+derecha(90)
+adelante(100)
+angulo(0)
+xy(0,0)
+  `;
+
+  for (const command of example.split('\n')) {
+    if (command.trim() !== '') {
+      drawer.run(command);
+    }
+  }
 }
 
 main();

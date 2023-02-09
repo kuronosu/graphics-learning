@@ -45,12 +45,10 @@ export class Drawer {
   }
 
   up = () => {
-    console.log('up');
     this._pen.up();
   };
 
   down = () => {
-    console.log('down');
     this._pen.down();
   };
 
