@@ -1,13 +1,13 @@
 export interface Observable<T> {
-  _call(): void;
-  observe(observer: (value: T) => void): void;
+  _call(): void | Promise<void>;
+  observe(observer: (value: T) => void | Promise<void>): void;
 }
 
 export abstract class BaseObservable<T> implements Observable<T> {
-  _observers: ((value: T) => void)[] = [];
+  _observers: ((value: T) => void | Promise<void>)[] = [];
 
   abstract _call(): void;
-  observe(observer: (value: T) => void) {
+  observe(observer: (value: T) => void | Promise<void>) {
     this._observers.push(observer);
   }
 }
@@ -15,8 +15,10 @@ export abstract class BaseObservable<T> implements Observable<T> {
 export class SelfObservable<
   T extends SelfObservable<T>,
 > extends BaseObservable<T> {
-  _call(this: T) {
-    this._observers.forEach((observer) => observer(this as T));
+  async _call(this: T) {
+    for (const observer of this._observers) {
+      await observer(this);
+    }
   }
 }
 

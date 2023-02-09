@@ -1,13 +1,22 @@
 import { getCanvasCartesianPoint } from './common';
 import Pen from './pen';
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep(milliseconds: number) {
+  return new Promise<void>((resolve) => {
+    var start = new Date().getTime();
+    while (true) {
+      if (new Date().getTime() - start >= milliseconds) {
+        break;
+      }
+    }
+    resolve();
+  });
 }
 
 export class Drawer {
   private _pen: Pen;
   private _ctx: CanvasRenderingContext2D;
+  public animationSpeed = 0;
 
   constructor(context: CanvasRenderingContext2D) {
     this._pen = new Pen();
@@ -22,20 +31,20 @@ export class Drawer {
     return this._ctx;
   }
 
-  up = () => {
+  up = async () => {
     this._pen.up();
   };
 
-  down = () => {
+  down = async () => {
     this._pen.down();
   };
 
-  xy = ({ x, y }: { x: number; y: number }) => {
+  xy = async ({ x, y }: { x: number; y: number }) => {
     this._pen.move(x, y);
     this._pen.sync(this._ctx);
   };
 
-  forward = ({ distance }: { distance: number }) => {
+  forward = async ({ distance }: { distance: number }) => {
     this._ctx.save();
     this._ctx.strokeStyle = this._pen.hexColor;
     const x = this._pen.position.x + distance * Math.cos(this._pen.angle);
@@ -49,57 +58,87 @@ export class Drawer {
     this._ctx.restore();
   };
 
-  backward = ({ distance }: { distance: number }) => {
+  backward = async ({ distance }: { distance: number }) => {
     this.forward({ distance: -distance });
   };
 
-  angle = ({ angle }: { angle: number }) => {
+  angle = async ({ angle }: { angle: number }) => {
     this._pen.angle = angle;
   };
 
-  left = ({ angle }: { angle: number }) => {
+  left = async ({ angle }: { angle: number }) => {
     this._pen.rotate(angle);
   };
 
-  right = ({ angle }: { angle: number }) => {
+  right = async ({ angle }: { angle: number }) => {
     this._pen.rotate(-angle);
   };
 
-  color = ({ r, g, b }: { r: number; g: number; b: number }) => {
+  color = async ({ r, g, b }: { r: number; g: number; b: number }) => {
     this._pen.color = { r, g, b };
     this._pen.sync(this._ctx);
   };
 
-  fill = () => {
+  fill = async () => {
     this._ctx.save();
-    this._ctx.fillStyle = this._pen.hexColor;
-    //Flooding fill
-    const visited: { [key: string]: boolean } = {};
-    const next: number[][] = [];
-    const { x, y } = getCanvasCartesianPoint(
-      this._pen.position.x,
-      this._pen.position.x,
-      this._ctx,
-    );
-    next.push([x, y]);
+    const _ = async (f: (x: number, y: number) => number[][]) => {
+      const visited: { [key: string]: boolean } = {};
+      this._ctx.fillStyle = this._pen.hexColor;
+      //Flooding fill
+      const next: number[][] = [];
+      const { x, y } = getCanvasCartesianPoint(
+        this._pen.position.x,
+        this._pen.position.x,
+        this._ctx,
+      );
+      next.push([x, y]);
 
-    while (next.length > 0) {
-      const [x, y] = next.pop()!;
-      if (visited[`${x},${y}`] === true) {
-        continue;
+      while (next.length > 0) {
+        const [x, y] = next.shift()!;
+        if (visited[`${x},${y}`] === true) {
+          continue;
+        }
+        visited[`${x},${y}`] = true;
+        const pixel = this._ctx.getImageData(x, y, 1, 1).data;
+        if (
+          (pixel[0] === 255 && pixel[1] === 255 && pixel[2] === 255) ||
+          (pixel[0] === 0 && pixel[1] === 0 && pixel[2] === 0 && pixel[3] === 0)
+        ) {
+          if (this.animationSpeed > 0) {
+            await sleep(this.animationSpeed);
+          }
+          this._ctx.fillRect(x, y, 1, 1);
+          next.push(...f(x, y));
+        }
       }
-      visited[`${x},${y}`] = true;
-      const pixel = this._ctx.getImageData(x, y, 1, 1).data;
-      if (
-        (pixel[0] === 255 && pixel[1] === 255 && pixel[2] === 255) ||
-        (pixel[0] === 0 && pixel[1] === 0 && pixel[2] === 0 && pixel[3] === 0)
-      ) {
-        this._ctx.fillRect(x, y, 1, 1);
-        next.push([x + 1, y]);
-        next.push([x - 1, y]);
-        next.push([x, y + 1]);
-        next.push([x, y - 1]);
-      }
+    };
+
+    if (this.animationSpeed > 0) {
+      await Promise.all([
+        _((x, y) => [
+          [x + 1, y],
+          [x, y + 1],
+        ]),
+        _((x, y) => [
+          [x - 1, y],
+          [x, y - 1],
+        ]),
+        _((x, y) => [
+          [x + 1, y],
+          [x, y - 1],
+        ]),
+        _((x, y) => [
+          [x - 1, y],
+          [x, y + 1],
+        ]),
+      ]);
+    } else {
+      await _((x, y) => [
+        [x + 1, y],
+        [x, y + 1],
+        [x - 1, y],
+        [x, y - 1],
+      ]);
     }
 
     this._ctx.restore();

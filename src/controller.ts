@@ -3,39 +3,71 @@ import { Command } from './commands';
 import { HistoryManager } from './utils/history';
 import { clearCtx } from './draw/common';
 import { Drawer } from './draw/drawer';
+import { ObservableValue } from './utils/observable';
 
 export class Controller {
   private _drawHistory: HistoryManager<Command<any>>;
   private _drawer: Drawer;
   private _redraw: boolean;
+  private _isDrawing: ObservableValue<boolean>;
+  public animateLastCommand = false; // TODO: check
+  private _changeFromHistorySearch = false;
 
   constructor(context: CanvasRenderingContext2D) {
     this._redraw = true;
     this._drawHistory = new HistoryManager();
     this._drawer = new Drawer(context);
+    this._isDrawing = new ObservableValue(false);
 
-    this._drawHistory.observe((h) => this.draw());
+    this._drawHistory.observe(async (h) => {
+      await this.draw();
+    });
+  }
+
+  get redraw() {
+    return this._redraw;
+  }
+  set redraw(redraw: boolean) {
+    this._redraw = redraw;
   }
 
   get history() {
     return this._drawHistory;
   }
 
+  get isDrawing() {
+    return this._isDrawing;
+  }
+
   private _addCommand<T extends object>(command: Command<T>) {
     this._drawHistory.add(command);
   }
 
-  private draw() {
-    if (this._redraw) {
+  private async draw() {
+    if (this._redraw && !this.isDrawing.value) {
+      this._isDrawing.value = true;
       clearCtx(this._drawer.ctx);
       this._drawer.pen.reset();
       this._drawer.ctx.beginPath();
       this._drawer.xy({ x: 0, y: 0 });
+      this._drawer.animationSpeed = 0;
+      let idx = 0;
       for (const command of this._drawHistory.past) {
-        command.run();
+        if (
+          this.animateLastCommand &&
+          !this._changeFromHistorySearch &&
+          idx === this._drawHistory.past.length - 1
+        ) {
+          console.log('setting animation speed to 0.1');
+          this._drawer.animationSpeed = 0.5;
+        }
+        await command.run();
+        idx++;
       }
       this._drawer.pen.draw(this._drawer.ctx);
       this._drawer.ctx.closePath();
+      this._isDrawing.value = false;
+      this._changeFromHistorySearch = false;
     }
   }
 
@@ -65,7 +97,7 @@ export class Controller {
     return args.length === this.commandsArgCount[fn][0];
   }
 
-  run(command: string) {
+  parseCommand(command: string) {
     const cmd = detectFunctionCall(command);
     if (cmd === null) {
       throw new Error('Invalid command');
@@ -97,6 +129,17 @@ export class Controller {
       );
     }
   }
+
+  // history
+  undo = () => {
+    this._changeFromHistorySearch = true;
+    return this._drawHistory.undo();
+  };
+
+  redo = () => {
+    this._changeFromHistorySearch = true;
+    return this._drawHistory.redo();
+  };
 
   // Commands
 

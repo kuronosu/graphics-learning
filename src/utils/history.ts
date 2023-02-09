@@ -20,6 +20,11 @@ export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
     return this._future.slice();
   }
 
+  set past(past: T[]) {
+    this._history = past;
+    this._call();
+  }
+
   toString() {
     return `HistoryManager(${this._history}, ${this._future})`;
   }

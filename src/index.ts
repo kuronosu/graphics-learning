@@ -46,7 +46,11 @@ function main() {
   const $canvasGrid = document.getElementById('grid') as HTMLCanvasElement;
   grid($canvasGrid.getContext('2d')!);
 
-  const drawer = new Controller($canvas.getContext('2d')!);
+  const drawer = new Controller(
+    $canvas.getContext('2d', {
+      willReadFrequently: true,
+    })!,
+  );
 
   drawer.history.observe((history) => {
     $historyContainer.innerHTML = '';
@@ -63,19 +67,27 @@ function main() {
   window.addEventListener('keydown', (e) => {
     if (e.key === 'z' && e.ctrlKey) {
       e.preventDefault();
-      drawer.history.undo();
+      if (!$commandEntry.disabled) {
+        drawer.undo();
+      }
     } else if (e.key === 'y' && e.ctrlKey) {
       e.preventDefault();
-      drawer.history.redo();
+      if (!$commandEntry.disabled) {
+        drawer.redo();
+      }
     } else if (e.key === 'g') {
       $canvasGrid.classList.toggle('hidden');
     }
   });
 
+  drawer.isDrawing.observe((isDrawing) => {
+    $commandEntry.disabled = isDrawing;
+  });
+
   $commandEntry.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       try {
-        drawer.run($commandEntry.value);
+        drawer.parseCommand($commandEntry.value);
         $commandEntry.value = '';
       } catch (err) {
         alert(err);
@@ -89,7 +101,7 @@ function main() {
     }
   });
 
-  drawer.run('limpiar()');
+  drawer.parseCommand('limpiar()');
 
   const example = `
 color(255, 0, 0)
@@ -107,13 +119,19 @@ adelante(100)
 angulo(0)
 xy(0,0)
 color(0, 0, 0)
-relleno()
-  `;
+`;
 
-  for (const command of example.split('\n')) {
-    if (command.trim() !== '') {
-      drawer.run(command);
+  const commands = example.split('\n').filter((c) => c.trim() !== '');
+
+  drawer.redraw = false;
+  let i = commands.length;
+  for (const command of commands) {
+    if (i == 1) {
+      console.log('redraw');
+      drawer.redraw = true;
     }
+    drawer.parseCommand(command);
+    i--;
   }
 }
 
