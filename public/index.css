@@ -5,8 +5,9 @@ body {
   height: 100%;
   width: 100%;
   background-color: whitesmoke;
-  font-family: "Roboto", sans-serif;
-  font-size: 16px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: black;
 }
 
 ol,
@@ -32,11 +33,11 @@ ul {
   align-items: center;
   width: 100%;
   height: calc(100% - 40px);
+  border-bottom: 1px solid #333;
 }
 
 .panel {
   height: 100%;
-  color: black;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -51,6 +52,15 @@ ul {
 .left-panel,
 .right-panel {
   width: 20%;
+  justify-content: flex-start;
+}
+
+#history-container {
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 0;
+  max-height: 100%;
 }
 
 .center-panel {
@@ -79,15 +89,18 @@ ul {
 #command-entry {
   width: 100%;
   border: none;
-  color: black;
   font-size: 1.5em;
   margin: 10px 20px;
   background-color: transparent;
   border-bottom: 2px solid #333;
+  text-align: center;
 }
 
 #command-entry:focus {
   outline: none;
   border-bottom: 2px solid black;
-  text-align: center;
+}
+
+.future {
+  color: #999;
 }

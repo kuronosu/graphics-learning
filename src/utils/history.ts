@@ -3,14 +3,16 @@ import { SelfObservable } from './observable';
 export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
   private _history: T[];
   private _future: T[];
+  private _searchIdx: number;
 
   constructor() {
     super();
     this._history = [];
     this._future = [];
+    this._searchIdx = 0;
   }
 
-  get history() {
+  get past() {
     return this._history.slice();
   }
 
@@ -58,5 +60,26 @@ export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
 
   [Symbol.iterator]() {
     return this._history[Symbol.iterator]();
+  }
+
+  get search() {
+    return {
+      backward: () => {
+        if (this._searchIdx < this.past.length) {
+          this._searchIdx++;
+          const cmd = this.past[this.past.length - this._searchIdx];
+          return cmd;
+        }
+      },
+      forward: () => {
+        if (this._searchIdx > 0) {
+          this._searchIdx--;
+          const cmd = this.past[this.past.length - this._searchIdx];
+          if (cmd) {
+            return cmd;
+          }
+        }
+      },
+    };
   }
 }
