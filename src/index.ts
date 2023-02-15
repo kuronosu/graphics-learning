@@ -82,6 +82,7 @@ function main() {
 
   drawer.isDrawing.observe((isDrawing) => {
     $commandEntry.disabled = isDrawing;
+    if (!isDrawing) $commandEntry.focus();
   });
 
   $commandEntry.addEventListener('keydown', (e) => {
@@ -104,27 +105,43 @@ function main() {
   drawer.parseCommand('limpiar()');
 
   const example = `
-color(255, 0, 0)
-arriba()
-atras(70.711)
-abajo()
-izquierda(45)
-adelante(100)
-derecha(90)
-adelante(100)
-derecha(90)
-adelante(150)
-derecha(90)
-adelante(200)
-derecha(90)
-adelante(100)
-derecha(90)
-adelante(100)
+  color(255, 0, 0)
+  arriba()
+  atras(70.711)
+  abajo()
+  rotar(45)
+  adelante(100)
+  rotar(-90)
+  adelante(100)
+  rotar(-90)
+  adelante(150)
+  rotar(-90)
+  adelante(200)
+  rotar(-90)
+  adelante(100)
+  rotar(-90)
+  adelante(100)
 
-angulo(0)
-xy(0,0)
-color(0, 0, 0)
-`;
+  rotar(45)
+  xy(0,0)
+  color(0, 0, 0)
+  `;
+  //   const example = `
+  // color(0, 0, 0)
+  // xy(-299, 299)
+  // adelante(598)
+  // rotar(-90)
+  // adelante(598)
+  // rotar(-90)
+  // adelante(598)
+  // rotar(-90)
+  // adelante(598)
+  // rotar(-90)
+  // xy(0, 0)
+  // relleno()
+  // color(255, 255, 255)
+  // adelante(300)
+  // `
 
   const commands = example.split('\n').filter((c) => c.trim() !== '');
 
@@ -132,7 +149,6 @@ color(0, 0, 0)
   let i = commands.length;
   for (const command of commands) {
     if (i == 1) {
-      console.log('redraw');
       drawer.redraw = true;
     }
     drawer.parseCommand(command);

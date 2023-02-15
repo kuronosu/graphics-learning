@@ -1,7 +1,7 @@
 import detectFunctionCall from './utils/function_call';
 import { Command } from './commands';
 import { HistoryManager } from './utils/history';
-import { clearCtx } from './draw/common';
+import { clearCtx, drawPixels, getColorIndicesForCoord } from './draw/common';
 import { Drawer } from './draw/drawer';
 import { ObservableValue } from './utils/observable';
 
@@ -58,10 +58,12 @@ export class Controller {
           !this._changeFromHistorySearch &&
           idx === this._drawHistory.past.length - 1
         ) {
-          console.log('setting animation speed to 0.1');
-          this._drawer.animationSpeed = 10;
+          this._drawer.animationSpeed = 1000;
         }
-        await command.run();
+        const points = await command.run();
+        if (points) {
+          drawPixels(points, this._drawer.ctx, this._drawer.pen.color);
+        }
         idx++;
       }
       this._drawer.pen.draw(this._drawer.ctx);
@@ -78,9 +80,8 @@ export class Controller {
       limpiar: [0, this.clear],
       relleno: [0, this.fill],
 
-      izquierda: [1, this.left],
-      angulo: [1, this.angle],
-      derecha: [1, this.right],
+      // angulo: [1, this.angle],
+      rotar: [1, this.rotate],
       adelante: [1, this.forward],
       atras: [1, this.backward],
 
@@ -173,12 +174,8 @@ export class Controller {
     this._addCommand(new Command('angulo', this._drawer.angle, { angle }));
   };
 
-  left = (angle: number) => {
-    this._addCommand(new Command('izquierda', this._drawer.left, { angle }));
-  };
-
-  right = (angle: number) => {
-    this._addCommand(new Command('derecha', this._drawer.right, { angle }));
+  rotate = (angle: number) => {
+    this._addCommand(new Command('rotar', this._drawer.rotate, { angle }));
   };
 
   color = (r: number, g: number, b: number) => {

@@ -1,4 +1,4 @@
-import { getCanvasCartesianPoint } from './common';
+import { eqPixel, getCanvasCartesianPoint, outOfBounds } from './common';
 import Pen from './pen';
 
 async function sleep(milliseconds: number) {
@@ -8,6 +8,7 @@ async function sleep(milliseconds: number) {
 export class Drawer {
   private _pen: Pen;
   private _ctx: CanvasRenderingContext2D;
+  private _calculatedFills: { [key: string]: boolean } = {};
   public animationSpeed = 0;
 
   constructor(context: CanvasRenderingContext2D) {
@@ -58,12 +59,8 @@ export class Drawer {
     this._pen.angle = angle;
   };
 
-  left = async ({ angle }: { angle: number }) => {
+  rotate = async ({ angle }: { angle: number }) => {
     this._pen.rotate(angle);
-  };
-
-  right = async ({ angle }: { angle: number }) => {
-    this._pen.rotate(-angle);
   };
 
   color = async ({ r, g, b }: { r: number; g: number; b: number }) => {
@@ -72,11 +69,22 @@ export class Drawer {
   };
 
   fill = async () => {
+    const action = {
+      c: 0,
+      paint: async (x: number, y: number) => {
+        this._ctx.fillRect(x, y, 1, 1);
+        action.c++;
+        if (action.c > 1000) {
+          await sleep(1);
+          action.c = 0;
+        }
+      }
+    }
+
     this._ctx.save();
-    const toPaint: number[][] = []
+    const painted: number[][] = []
     const visited: { [key: string]: boolean } = {};
     this._ctx.fillStyle = this._pen.hexColor;
-    //Flooding fill
     const next: number[][] = [];
     const { x, y } = getCanvasCartesianPoint(
       this._pen.position.x,
@@ -84,46 +92,30 @@ export class Drawer {
       this._ctx,
     );
     next.push([x, y]);
+    const fillColor = this._ctx.getImageData(x, y, 1, 1).data;
+
+    const fn = this.animationSpeed > 0 ? action.paint : async (x: number, y: number) => this._ctx.fillRect(x, y, 1, 1);
 
     while (next.length > 0) {
       const [x, y] = next.shift()!;
-      if (visited[`${x},${y}`] === true) {
+      if (visited[`${x},${y}`] === true || outOfBounds(x, y, this._ctx)) {
         continue;
       }
       visited[`${x},${y}`] = true;
-      const pixel = this._ctx.getImageData(x, y, 1, 1).data;
-      if (
-        (pixel[0] === 255 && pixel[1] === 255 && pixel[2] === 255) ||
-        (pixel[0] === 0 && pixel[1] === 0 && pixel[2] === 0 && pixel[3] === 0)
-      ) {
-        if (this.animationSpeed > 0) {
-          toPaint.push([x, y])
-        } else {
-          this._ctx.fillRect(x, y, 1, 1);
-        }
-        next.push(...[[x + 1, y],
-        [x, y + 1],
-        [x - 1, y],
-        [x, y - 1],
+      const currentColor = this._ctx.getImageData(x, y, 1, 1).data;
+      if (eqPixel(currentColor, fillColor, true)) {
+        await fn(x, y)
+        painted.push([x, y])
+        next.push(...[
+          [x + 1, y],
+          [x, y + 1],
+          [x - 1, y],
+          [x, y - 1],
         ]);
       }
     }
 
-    if (this.animationSpeed > 0) {
-      let c = 0;
-      const n = 1000 / this.animationSpeed;
-      const batch = toPaint.length / n;
-      for (const p of toPaint) {
-        if (c>batch) {
-          await sleep(this.animationSpeed);
-          c = 0;
-        }
-        c++;
-        this._ctx.fillRect(p[0], p[1], 1, 1);
-      }
-    }
-
-    this._ctx.restore();
+    return painted;
   };
 
   // forward(distance)
