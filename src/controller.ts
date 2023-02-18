@@ -84,6 +84,7 @@ export class Controller {
       rotar: [1, this.rotate],
       adelante: [1, this.forward],
       atras: [1, this.backward],
+      cuadrado: [1, this.square],
 
       xy: [2, this.xy],
 
@@ -187,6 +188,10 @@ export class Controller {
 
   fill = () => {
     this._addCommand(new Command('relleno', this._drawer.fill, {}));
+  };
+
+  square = (size: number) => {
+    this._addCommand(new Command('cuadrado', this._drawer.square, { size }));
   };
 
   // End Commands

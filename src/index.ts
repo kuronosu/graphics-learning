@@ -143,17 +143,17 @@ function main() {
   // adelante(300)
   // `
 
-  const commands = example.split('\n').filter((c) => c.trim() !== '');
+  // const commands = example.split('\n').filter((c) => c.trim() !== '');
 
-  drawer.redraw = false;
-  let i = commands.length;
-  for (const command of commands) {
-    if (i == 1) {
-      drawer.redraw = true;
-    }
-    drawer.parseCommand(command);
-    i--;
-  }
+  // drawer.redraw = false;
+  // let i = commands.length;
+  // for (const command of commands) {
+  //   if (i == 1) {
+  //     drawer.redraw = true;
+  //   }
+  //   drawer.parseCommand(command);
+  //   i--;
+  // }
 }
 
 main();

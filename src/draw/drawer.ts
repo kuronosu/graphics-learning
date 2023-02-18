@@ -118,6 +118,16 @@ export class Drawer {
     return painted;
   };
 
+  square = async ({ size }: { size: number }) => {
+    this._ctx.save();
+    for (let _ = 0; _ < 4; _++) {
+      this.forward({ distance: size });
+      this.rotate({ angle: -90 });
+    }
+    this._ctx.restore();
+  };
+
+
   // forward(distance)
   // right(angle)
   // left(angle)
