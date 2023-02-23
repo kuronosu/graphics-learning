@@ -104,7 +104,7 @@ function main() {
 
   drawer.parseCommand('limpiar()');
 
-  const example = `
+  let example = `
   color(255, 0, 0)
   arriba()
   atras(70.711)
@@ -126,7 +126,7 @@ function main() {
   xy(0,0)
   color(0, 0, 0)
   `;
-  //   const example = `
+  //example = `
   // color(0, 0, 0)
   // xy(-299, 299)
   // adelante(598)
@@ -141,19 +141,28 @@ function main() {
   // relleno()
   // color(255, 255, 255)
   // adelante(300)
-  // `
+  //`
 
-  // const commands = example.split('\n').filter((c) => c.trim() !== '');
+  // xy(-50, 50)
+  example = `
+  color(255, 0, 0)
+  cuadrado(100)
+  xy(10,-10)
+  color(0, 0, 0)
+  rotar(45)
+  `
 
-  // drawer.redraw = false;
-  // let i = commands.length;
-  // for (const command of commands) {
-  //   if (i == 1) {
-  //     drawer.redraw = true;
-  //   }
-  //   drawer.parseCommand(command);
-  //   i--;
-  // }
+  const commands = example.split('\n').filter((c) => c.trim() !== '');
+
+  drawer.redraw = false;
+  let i = commands.length;
+  for (const command of commands) {
+    if (i == 1) {
+      drawer.redraw = true;
+    }
+    drawer.parseCommand(command);
+    i--;
+  }
 }
 
 main();

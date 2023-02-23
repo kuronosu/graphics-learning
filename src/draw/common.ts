@@ -40,10 +40,8 @@ export const getCanvasCartesianPoint = function (
     x = rotated.x;
     y = rotated.y;
   }
-
-  const cartesianX = x + width / 2;
+  const cartesianX = width / 2 + x;
   const cartesianY = height / 2 - y;
-
   return { x: cartesianX, y: cartesianY };
 };
 
@@ -72,11 +70,10 @@ export const getColorIndicesForCoord = (x: number, y: number, width: number) => 
 export const drawPixels = function (
   pixels: number[][],
   ctx: CanvasRenderingContext2D,
-  color?: { r: number; g: number; b: number },
+  color?: { r: number; g: number; b: number, a?: number },
 ) {
   const { width, height } = ctx.canvas;
-  const imgData = ctx.createImageData(width, height);
-  console.log(imgData);
+  const imgData = ctx.getImageData(0, 0, width, height);
   const data = imgData.data;
   for (let i = 0; i < pixels.length; i++) {
     const [x, y] = pixels[i];
@@ -84,7 +81,30 @@ export const drawPixels = function (
     data[r] = color?.r ?? 0;
     data[g] = color?.g ?? 0;
     data[b] = color?.b ?? 0;
-    data[a] = 255;
+    data[a] = color?.a ?? 255;
+    // drawPixel(x, y, ctx, color);
   }
   ctx.putImageData(imgData, 0, 0);
+}
+
+export const drawPixel = function (
+  x: number,
+  y: number,
+  ctx: CanvasRenderingContext2D,
+  color?: { r: number; g: number; b: number },
+) {
+  const imgData = ctx.createImageData(1, 1);
+  const data = imgData.data;
+  data[0] = color?.r ?? 0;
+  data[1] = color?.g ?? 0;
+  data[2] = color?.b ?? 0;
+  data[3] = 255;
+  ctx.putImageData(imgData, x, y);
+}
+
+export function interpolateColor(color: { r: number; g: number; b: number }, alpha: number) {
+  let r = Math.round((1 - alpha) * color.r + alpha * 255);
+  let g = Math.round((1 - alpha) * color.g + alpha * 255);
+  let b = Math.round((1 - alpha) * color.b + alpha * 255);
+  return {r, g, b};
 }
