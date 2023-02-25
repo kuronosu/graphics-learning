@@ -1,4 +1,5 @@
 import { drawPixel, eqPixel, getCanvasCartesianPoint, interpolateColor, outOfBounds } from './common';
+import drawLineWithAntiAliased from './line';
 import Pen from './pen';
 
 async function sleep(milliseconds: number) {
@@ -37,73 +38,18 @@ export class Drawer {
     this._pen.sync(this._ctx);
   };
 
-  forward = async ({ distance }: { distance: number }) => {
-    // this._ctx.save();
-    // this._ctx.strokeStyle = this._pen.hexColor;
+  line = async (x1: number, y1: number, x2: number, y2: number) => {
+    this.xy({ x: x2, y: y2 });
+    return drawLineWithAntiAliased({ x: x1, y: y1 }, { x: x2, y: y2 }, this._pen.color).map((point) => {
+      const { x, y } = getCanvasCartesianPoint(point.x, point.y, this._ctx);
+      return [x, y];
+    });
+  };
 
-
-    // this._pen.isDown && this._ctx.lineTo(newPos.x, newPos.y);
-    // this._pen.move(x, y);
-    // this._pen.sync(this._ctx);
-    // this._ctx.stroke();
-    // this._ctx.restore();
+  forward = async ({ distance }: { distance: number }): Promise<number[][]> => {
     const _x = Math.round(this._pen.position.x + distance * Math.cos(this._pen.angle)),
       _y = Math.round(this._pen.position.y + distance * Math.sin(this._pen.angle));
-    let { x: x0, y: y0 } = getCanvasCartesianPoint(
-      this._pen.position.x, this._pen.position.y, this._ctx);
-    let { x: x1, y: y1 } = getCanvasCartesianPoint(_x, _y, this._ctx);
-
-
-    // let dx = Math.abs(x1 - x0);
-    // let dy = Math.abs(y1 - y0);
-    // let sx = x0 < x1 ? 1 : -1;
-    // let sy = y0 < y1 ? 1 : -1;
-    // let err = dx - dy;
-
-    // while (x0 !== x1 || y0 !== y1) {
-    //   this._pen.isDown && drawPixel(x0, y0, this._ctx, this._pen.color);
-    //   let e2 = err * 2;
-    //   if (e2 > -dy) {
-    //     err -= dy;
-    //     x0 += sx;
-    //   }
-    //   if (e2 < dx) {
-    //     err += dx;
-    //     y0 += sy;
-    //   }
-    // }
-
-    let steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
-    if (steep) {
-      [x0, y0] = [y0, x0];
-      [x1, y1] = [y1, x1];
-    }
-    if (x0 > x1) {
-      [x0, x1] = [x1, x0];
-      [y0, y1] = [y1, y0];
-    }
-    let dx = x1 - x0;
-    let dy = Math.abs(y1 - y0);
-    let err = dx / 2;
-    let ystep = y0 < y1 ? 1 : -1;
-    let y = y0;
-    for (let x = x0; x <= x1; x++) {
-      if (steep) {
-        this._pen.isDown && drawPixel(y, x, this._ctx, interpolateColor(this.pen.color, err / dx));
-      } else {
-        this._pen.isDown && drawPixel(x, y, this._ctx, interpolateColor(this.pen.color, err / dx));
-      }
-      err -= dy;
-      if (err < 0) {
-        y += ystep;
-        err += dx;
-      }
-    }
-
-
-
-    this._pen.move(_x, _y);
-    this._pen.sync(this._ctx)
+    return await this.line(this._pen.position.x, this._pen.position.y, _x, _y);
   };
 
   backward = async ({ distance }: { distance: number }) => {
@@ -180,12 +126,16 @@ export class Drawer {
   };
 
   square = async ({ size }: { size: number }) => {
+    const points: number[][] = [];
     this._ctx.save();
     for (let _ = 0; _ < 4; _++) {
-      this.forward({ distance: size });
+      points.push(...(await this.forward({ distance: size })));
       this.rotate({ angle: -90 });
     }
     this._ctx.restore();
+    if (points.length > 0) {
+      return points
+    }
   };
 
 

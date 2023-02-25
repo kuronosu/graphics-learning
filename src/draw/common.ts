@@ -1,3 +1,5 @@
+import type { Color } from "src/types";
+
 export const clearCtx = (ctx: CanvasRenderingContext2D) => {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 };
@@ -70,7 +72,7 @@ export const getColorIndicesForCoord = (x: number, y: number, width: number) => 
 export const drawPixels = function (
   pixels: number[][],
   ctx: CanvasRenderingContext2D,
-  color?: { r: number; g: number; b: number, a?: number },
+  color?: Color,
 ) {
   const { width, height } = ctx.canvas;
   const imgData = ctx.getImageData(0, 0, width, height);
@@ -91,20 +93,21 @@ export const drawPixel = function (
   x: number,
   y: number,
   ctx: CanvasRenderingContext2D,
-  color?: { r: number; g: number; b: number },
+  color?: Color,
 ) {
   const imgData = ctx.createImageData(1, 1);
   const data = imgData.data;
   data[0] = color?.r ?? 0;
   data[1] = color?.g ?? 0;
   data[2] = color?.b ?? 0;
-  data[3] = 255;
+  data[3] = color?.a ?? 255;
   ctx.putImageData(imgData, x, y);
 }
 
-export function interpolateColor(color: { r: number; g: number; b: number }, alpha: number) {
+export function interpolateColor(color: Color, alpha: number): Color {
   let r = Math.round((1 - alpha) * color.r + alpha * 255);
   let g = Math.round((1 - alpha) * color.g + alpha * 255);
   let b = Math.round((1 - alpha) * color.b + alpha * 255);
-  return {r, g, b};
+  let a = Math.round((1 - alpha) * (color.a ?? 255) + alpha * 255);
+  return { r, g, b, a };
 }
