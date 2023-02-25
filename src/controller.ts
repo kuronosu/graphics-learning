@@ -4,6 +4,7 @@ import { HistoryManager } from './utils/history';
 import { clearCtx, drawPixels, getColorIndicesForCoord } from './draw/common';
 import { Drawer } from './draw/drawer';
 import { ObservableValue } from './utils/observable';
+import type { Point } from './types';
 
 export class Controller {
   private _drawHistory: HistoryManager<Command<any>>;
@@ -89,6 +90,8 @@ export class Controller {
       xy: [2, this.xy],
 
       color: [3, this.color],
+
+      poligono: [-1, this.polygon],
     };
   }
 
@@ -96,6 +99,7 @@ export class Controller {
     args: number[],
     fn: keyof typeof this.commandsArgCount,
   ) {
+    if (this.commandsArgCount[fn][0] == -1) return true
     return args.length === this.commandsArgCount[fn][0];
   }
 
@@ -117,7 +121,9 @@ export class Controller {
     }
     const [n, fn] =
       this.commandsArgCount[cmd.name as keyof typeof this.commandsArgCount];
-    if (n === 0) {
+    if (n === -1) {
+      (fn as (v: number[]) => void)(cmd.args);
+    } else if (n === 0) {
       (fn as () => void)();
     } else if (n === 1) {
       (fn as (v: number) => void)(cmd.args[0]);
@@ -192,6 +198,22 @@ export class Controller {
 
   square = (size: number) => {
     this._addCommand(new Command('cuadrado', this._drawer.square, { size }));
+  };
+
+  polygon = (points: number[]) => {
+    if (points.length % 2 !== 0) {
+      throw new Error('Invalid polygon');
+    }
+    if (points.length < 2) {
+      throw new Error('Invalid polygon');
+    }
+    const _points: Point[] = [];
+    for (let i = 0; i < points.length; i += 2) {
+      _points.push({ x: points[i], y: points[i + 1] });
+    }
+    this._addCommand(
+      new Command('poligono', this._drawer.polygon, { points: _points }),
+    );
   };
 
   // End Commands

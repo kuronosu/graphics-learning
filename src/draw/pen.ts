@@ -1,3 +1,4 @@
+import type { Point } from 'src/types';
 import { getCanvasCartesianPoint, toRadians } from './common';
 
 const _shapes = Object.freeze({
@@ -20,7 +21,7 @@ export default class Pen {
   private _angle: number;
   private _isDown: boolean;
   private _isVisible: boolean;
-  private _position: { x: number; y: number };
+  private _position: Point;
   private _color: { r: number; g: number; b: number };
   shape: keyof typeof _shapes;
 
@@ -122,7 +123,7 @@ export default class Pen {
       ctx.save();
       const shape =
         _shapes[
-          _shapes.hasOwnProperty(this.shape) ? this.shape : _DEFAULT_SHAPE
+        _shapes.hasOwnProperty(this.shape) ? this.shape : _DEFAULT_SHAPE
         ];
 
       const { x: cx, y: cy } = getCanvasCartesianPoint(

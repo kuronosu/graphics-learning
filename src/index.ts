@@ -58,7 +58,11 @@ function main() {
     .forEach(function eachKey(key) {
       const $li = document.createElement('li');
       const c: number = (drawer.commandsArgCount as any)[key][0];
-      $li.innerText = `${key}(${c > 0 ? Array(c).fill('n').join(', ') : ''})`;
+      if (c >= 0) {
+        $li.innerText = `${key}(${Array(c).fill('n').join(', ')})`;
+      } else {
+        $li.innerText = `${key}(n1, n2, n3...)`
+      }
       $exampleCommands.appendChild($li);
     });
   drawer.history.observe((history) => {
@@ -159,6 +163,7 @@ function main() {
   xy(10,-10)
   color(0, 0, 0)
   rotar(45)
+  poligono(100,100,200,200)
   `
 
   const commands = example.split('\n').filter((c) => c.trim() !== '');

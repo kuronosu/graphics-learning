@@ -1,3 +1,4 @@
+import type { Point } from 'src/types';
 import { drawPixel, eqPixel, getCanvasCartesianPoint, interpolateColor, outOfBounds } from './common';
 import drawLineWithAntiAliased from './line';
 import Pen from './pen';
@@ -137,6 +138,19 @@ export class Drawer {
       return points
     }
   };
+
+  polygon = async ({ points }: { points: Point[] }) => {
+    const painted: number[][] = [];
+    points.unshift(this._pen.position);
+    this._ctx.save();
+    for (let i = 0; i < points.length; i++) {
+      const point = points[i];
+      const next = points[(i + 1) % points.length];
+      painted.push(...(await this.line(point.x, point.y, next.x, next.y)));
+    }
+    this._ctx.restore();
+    return painted;
+  }
 
 
   // forward(distance)
