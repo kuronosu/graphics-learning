@@ -42,8 +42,10 @@ function main() {
   const $historyContainer = document.getElementById(
     'history-container',
   ) as HTMLOListElement;
+  const $exampleCommands = document.getElementById('example-commands') as HTMLUListElement;
   const $canvas = document.getElementById('canvas') as HTMLCanvasElement;
   const $canvasGrid = document.getElementById('grid') as HTMLCanvasElement;
+
   grid($canvasGrid.getContext('2d')!);
 
   const drawer = new Controller(
@@ -52,6 +54,13 @@ function main() {
     })!,
   );
 
+  Object.keys(drawer.commandsArgCount)
+    .forEach(function eachKey(key) {
+      const $li = document.createElement('li');
+      const c: number = (drawer.commandsArgCount as any)[key][0];
+      $li.innerText = `${key}(${c > 0 ? Array(c).fill('n').join(', ') : ''})`;
+      $exampleCommands.appendChild($li);
+    });
   drawer.history.observe((history) => {
     $historyContainer.innerHTML = '';
     $historyContainer.appendChild(createLI('Inicio'));
