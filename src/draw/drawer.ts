@@ -152,6 +152,24 @@ export class Drawer {
     return painted;
   }
 
+  circle = async ({ radius }: { radius: number }) => {
+    this._ctx.save();
+    const { x: xm, y: ym } = this._pen.position;
+    const points: number[][] = [];
+    let x = -radius, y = 0, err = 2 - 2 * radius; /* II. Quadrant */
+    do {
+      points.push([xm - x, ym + y]); /*   I. Quadrant */
+      points.push([xm - y, ym - x]); /*  II. Quadrant */
+      points.push([xm + x, ym - y]); /* III. Quadrant */
+      points.push([xm + y, ym + x]); /*  IV. Quadrant */
+      radius = err;
+      if (radius <= y) err += ++y * 2 + 1;           /* e_xy+e_y < 0 */
+      if (radius > x || err > y) err += ++x * 2 + 1; /* e_xy+e_x > 0 or no 2nd y-step */
+    } while (x < 0);
+    this._ctx.restore();
+    return points;
+  };
+
 
   // forward(distance)
   // right(angle)

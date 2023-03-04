@@ -86,6 +86,7 @@ export class Controller {
       adelante: [1, this.forward],
       atras: [1, this.backward],
       cuadrado: [1, this.square],
+      circulo: [1, this.circle],
 
       xy: [2, this.xy],
 
@@ -215,6 +216,10 @@ export class Controller {
       new Command('poligono', this._drawer.polygon, { points: _points }),
     );
   };
+
+  circle = (radius: number) => {
+    this._addCommand(new Command('circulo', this._drawer.circle, { radius }));
+  }
 
   // End Commands
 }
