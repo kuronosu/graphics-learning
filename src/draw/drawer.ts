@@ -139,13 +139,17 @@ export class Drawer {
     }
   };
 
-  polygon = async ({ points }: { points: Point[] }) => {
+  polygon = async ({ points }: { points: number[] }) => {
     const painted: number[][] = [];
-    points.unshift(this._pen.position);
+    const _points: Point[] = [];
+    for (let i = 0; i < points.length; i += 2) {
+      _points.push({ x: points[i], y: points[i + 1] });
+    }
+    _points.unshift(this._pen.position);
     this._ctx.save();
-    for (let i = 0; i < points.length; i++) {
-      const point = points[i];
-      const next = points[(i + 1) % points.length];
+    for (let i = 0; i < _points.length; i++) {
+      const point = _points[i];
+      const next = _points[(i + 1) % _points.length];
       painted.push(...(await this.line(point.x, point.y, next.x, next.y)));
     }
     this._ctx.restore();

@@ -208,12 +208,8 @@ export class Controller {
     if (points.length < 2) {
       throw new Error('Invalid polygon');
     }
-    const _points: Point[] = [];
-    for (let i = 0; i < points.length; i += 2) {
-      _points.push({ x: points[i], y: points[i + 1] });
-    }
     this._addCommand(
-      new Command('poligono', this._drawer.polygon, { points: _points }),
+      new Command('poligono', this._drawer.polygon, { points }),
     );
   };
 
