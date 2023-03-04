@@ -168,7 +168,7 @@ function main() {
   circulo(250)
   adelante(200)
   xy(0, 10)
-  para(50, 200, 4, 3)
+  para(50, 200, 5, 5)
   xy(-10, 0)
   color(255, 0, 0)
   `

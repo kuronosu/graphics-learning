@@ -218,10 +218,12 @@ export class Drawer {
     // return points;
   };
 
-  each = async ({ from, to, step, space }: { from: number, to: number, step: number, space?: number }) => {
+  each = async ({ from, to, step, space }: { from: number, to: number, step: number, space: number }) => {
     // const painted: number[][] = [];
-    const _space = space || 10;
     this._ctx.save();
+    if (space == 1) {
+      space = 2;
+    }
 
     const xf = Math.round(this._pen.position.x + to * Math.cos(this._pen.angle)),
       yf = Math.round(this._pen.position.y + to * Math.sin(this._pen.angle));
@@ -234,14 +236,14 @@ export class Drawer {
     let restDistance = Math.hypot(xf - this._pen.position.x, yf - this._pen.position.y);
     let prevDistance = restDistance;
     while (prevDistance >= restDistance) {
-      if (step + _space > restDistance) {
+      if (step + space > restDistance) {
         await this.forward({ distance: step > restDistance ? restDistance : step });
         break;
       }
       await this.forward({ distance: step });
       this.xy({
-        x: Math.round(this._pen.position.x + _space * Math.cos(this._pen.angle)),
-        y: Math.round(this._pen.position.y + _space * Math.sin(this._pen.angle))
+        x: Math.round(this._pen.position.x + space * Math.cos(this._pen.angle)),
+        y: Math.round(this._pen.position.y + space * Math.sin(this._pen.angle))
       });
       prevDistance = restDistance;
       restDistance = Math.hypot(xf - this._pen.position.x, yf - this._pen.position.y);
