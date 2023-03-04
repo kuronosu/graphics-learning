@@ -155,17 +155,22 @@ function main() {
   //`
 
   // xy(-50, 50)
-  example = `
-  color(255, 0, 0)
-  cuadrado(100)
-  xy(10,-10)
-  color(0, 0, 0)
-  rotar(45)
-  poligono(100,100,200,200)
-  `
+  // example = `
+  // color(255, 0, 0)
+  // cuadrado(100)
+  // xy(10,-10)
+  // color(0, 0, 0)
+  // rotar(45)
+  // poligono(100,100,200,200)
+  // `
   example = `
   color(0, 0, 0)
   circulo(250)
+  adelante(200)
+  xy(0, 10)
+  para(50, 200, 4, 3)
+  xy(-10, 0)
+  color(255, 0, 0)
   `
 
   const commands = example.split('\n').filter((c) => c.trim() !== '');

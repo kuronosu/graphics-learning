@@ -47,6 +47,24 @@ export const getCanvasCartesianPoint = function (
   return { x: cartesianX, y: cartesianY };
 };
 
+// invert of getCanvasCartesianPoint
+export const getCartesianCanvasPoint = function (
+  x: number,
+  y: number,
+  ctx: CanvasRenderingContext2D,
+  rotate?: { x: number; y: number; angle: number },
+) {
+  const { width, height } = ctx.canvas;
+  if (rotate) {
+    const rotated = rotatePoint(x, y, -rotate.angle, rotate.x, rotate.y);
+    x = rotated.x;
+    y = rotated.y;
+  }
+  const cartesianX = x - width / 2;
+  const cartesianY = height / 2 - y;
+  return { x: cartesianX, y: cartesianY };
+};
+
 export const eqPixel = function (
   p1: Uint8ClampedArray,
   p2: Uint8ClampedArray,

@@ -1,5 +1,5 @@
 import type { Point } from 'src/types';
-import { drawPixel, eqPixel, getCanvasCartesianPoint, interpolateColor, outOfBounds } from './common';
+import { drawPixel, drawPixels, eqPixel, getCanvasCartesianPoint, interpolateColor, outOfBounds } from './common';
 import drawLineWithAntiAliased from './line';
 import Pen from './pen';
 
@@ -43,14 +43,20 @@ export class Drawer {
     this.xy({ x: x2, y: y2 });
     return drawLineWithAntiAliased({ x: x1, y: y1 }, { x: x2, y: y2 }, this._pen.color).map((point) => {
       const { x, y } = getCanvasCartesianPoint(point.x, point.y, this._ctx);
+      if (outOfBounds(x, y, this._ctx)) {
+        return;
+      }
       return [x, y];
-    });
+    }).filter((point) => point) as number[][];
   };
 
-  forward = async ({ distance }: { distance: number }): Promise<number[][]> => {
+  forward = async ({ distance }: { distance: number }): Promise<number[][] | void> => {
     const _x = Math.round(this._pen.position.x + distance * Math.cos(this._pen.angle)),
       _y = Math.round(this._pen.position.y + distance * Math.sin(this._pen.angle));
-    return await this.line(this._pen.position.x, this._pen.position.y, _x, _y);
+    const points = await this.line(this._pen.position.x, this._pen.position.y, _x, _y);
+    drawPixels(points,
+      this.ctx,
+      this.pen.color);
   };
 
   backward = async ({ distance }: { distance: number }) => {
@@ -130,13 +136,18 @@ export class Drawer {
     const points: number[][] = [];
     this._ctx.save();
     for (let _ = 0; _ < 4; _++) {
-      points.push(...(await this.forward({ distance: size })));
+      // points.push(...(
+      await this.forward({ distance: size })
+      // ));
       this.rotate({ angle: -90 });
     }
     this._ctx.restore();
-    if (points.length > 0) {
-      return points
-    }
+    drawPixels(points,
+      this.ctx,
+      this.pen.color);
+    // if (points.length > 0) {
+    //   return points
+    // }
   };
 
   polygon = async ({ points }: { points: number[] }) => {
@@ -153,7 +164,10 @@ export class Drawer {
       painted.push(...(await this.line(point.x, point.y, next.x, next.y)));
     }
     this._ctx.restore();
-    return painted;
+    drawPixels(_points.map(it => [it.x, it.y]),
+      this.ctx,
+      this.pen.color);
+    // return painted;
   }
 
   circle = async ({ radius }: { radius: number }) => {
@@ -199,8 +213,43 @@ export class Drawer {
         err -= --y * 2 - 1;
       }
     }
-    return points;
+    this._ctx.restore();
+    drawPixels(points, this.ctx, this.pen.color);
+    // return points;
   };
+
+  each = async ({ from, to, step, space }: { from: number, to: number, step: number, space?: number }) => {
+    // const painted: number[][] = [];
+    const _space = space || 10;
+    this._ctx.save();
+
+    const xf = Math.round(this._pen.position.x + to * Math.cos(this._pen.angle)),
+      yf = Math.round(this._pen.position.y + to * Math.sin(this._pen.angle));
+    if (from !== 0) {
+      this.xy({
+        x: Math.round(this._pen.position.x + from * Math.cos(this._pen.angle)),
+        y: Math.round(this._pen.position.y + from * Math.sin(this._pen.angle))
+      });
+    }
+    let restDistance = Math.hypot(xf - this._pen.position.x, yf - this._pen.position.y);
+    let prevDistance = restDistance;
+    while (prevDistance >= restDistance) {
+      if (step + _space > restDistance) {
+        await this.forward({ distance: step > restDistance ? restDistance : step });
+        break;
+      }
+      await this.forward({ distance: step });
+      this.xy({
+        x: Math.round(this._pen.position.x + _space * Math.cos(this._pen.angle)),
+        y: Math.round(this._pen.position.y + _space * Math.sin(this._pen.angle))
+      });
+      prevDistance = restDistance;
+      restDistance = Math.hypot(xf - this._pen.position.x, yf - this._pen.position.y);
+    }
+    this.xy({ x: xf, y: yf });
+    this._ctx.restore();
+    // return painted;
+  }
 
 
   // forward(distance)

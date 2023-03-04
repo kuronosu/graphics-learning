@@ -1,7 +1,7 @@
 import detectFunctionCall from './utils/function_call';
 import { Command } from './commands';
 import { HistoryManager } from './utils/history';
-import { clearCtx, drawPixels, getColorIndicesForCoord } from './draw/common';
+import { clearCtx, drawPixels, getCartesianCanvasPoint, getColorIndicesForCoord } from './draw/common';
 import { Drawer } from './draw/drawer';
 import { ObservableValue } from './utils/observable';
 import type { Point } from './types';
@@ -53,6 +53,7 @@ export class Controller {
       this._drawer.xy({ x: 0, y: 0 });
       this._drawer.animationSpeed = 0;
       let idx = 0;
+      // let lastPoint: Point | undefined;
       for (const command of this._drawHistory.past) {
         if (
           this.animateLastCommand &&
@@ -64,9 +65,17 @@ export class Controller {
         const points = await command.run();
         if (points) {
           drawPixels(points, this._drawer.ctx, this._drawer.pen.color);
+          // lastPoint = {
+          //   x: points[points.length - 1][0],
+          //   y: points[points.length - 1][1],
+          // };
         }
         idx++;
       }
+
+      // if (lastPoint) {
+      //   this._drawer.xy(getCartesianCanvasPoint(lastPoint.x, lastPoint.y, this._drawer.ctx));
+      // }
       this._drawer.pen.draw(this._drawer.ctx);
       this._drawer.ctx.closePath();
       this._isDrawing.value = false;
@@ -91,6 +100,8 @@ export class Controller {
       xy: [2, this.xy],
 
       color: [3, this.color],
+
+      para: [4, this.each],
 
       poligono: [-1, this.polygon],
     };
@@ -135,6 +146,13 @@ export class Controller {
         cmd.args[0],
         cmd.args[1],
         cmd.args[2],
+      );
+    } else if (n === 4) {
+      (fn as (v1: number, v2: number, v3: number, v4: number) => void)(
+        cmd.args[0],
+        cmd.args[1],
+        cmd.args[2],
+        cmd.args[3],
       );
     }
   }
@@ -215,6 +233,13 @@ export class Controller {
 
   circle = (radius: number) => {
     this._addCommand(new Command('circulo', this._drawer.circle, { radius }));
+  }
+
+  each = (from: number, to: number, step: number, space: number) => {
+    if (from < 0 || to < 0 || step < 0 || space < 0 || from > to) {
+      throw new Error('Invalid para');
+    }
+    this._addCommand(new Command('para', this._drawer.each, { from, to, step, space }));
   }
 
   // End Commands
