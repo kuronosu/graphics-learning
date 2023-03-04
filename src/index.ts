@@ -1,11 +1,9 @@
 import { Controller } from './controller';
 
-function createLI(text: string, className?: string) {
+function createLI(text: string, ...className: string[]) {
   const $li = document.createElement('li');
   $li.innerText = text;
-  if (className) {
-    $li.classList.add(className);
-  }
+  className?.forEach((c) => $li.classList.add(c));
   return $li;
 }
 
@@ -67,13 +65,13 @@ function main() {
     });
   drawer.history.observe((history) => {
     $historyContainer.innerHTML = '';
-    $historyContainer.appendChild(createLI('Inicio'));
+    $historyContainer.appendChild(createLI('Inicio', 'm-0'));
     for (const command of history.past) {
-      $historyContainer.appendChild(createLI(command.toString()));
+      $historyContainer.appendChild(createLI(command.toString(), 'ml-1'));
     }
-    $historyContainer.appendChild(createLI('Fin'));
+    $historyContainer.appendChild(createLI('Fin', 'm-0'));
     for (const command of history.future) {
-      $historyContainer.appendChild(createLI(command.toString(), 'future'));
+      $historyContainer.appendChild(createLI(command.toString(), 'ml-1', 'future'));
     }
   });
 
