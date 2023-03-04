@@ -165,6 +165,10 @@ function main() {
   rotar(45)
   poligono(100,100,200,200)
   `
+  example = `
+  color(0, 0, 0)
+  circulo(250)
+  `
 
   const commands = example.split('\n').filter((c) => c.trim() !== '');
 

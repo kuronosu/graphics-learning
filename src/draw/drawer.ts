@@ -157,20 +157,48 @@ export class Drawer {
   }
 
   circle = async ({ radius }: { radius: number }) => {
-    this._ctx.save();
     const { x: xm, y: ym } = this._pen.position;
+    this._ctx.save();
     const points: number[][] = [];
-    let x = -radius, y = 0, err = 2 - 2 * radius; /* II. Quadrant */
-    do {
-      points.push([xm - x, ym + y]); /*   I. Quadrant */
-      points.push([xm - y, ym - x]); /*  II. Quadrant */
-      points.push([xm + x, ym - y]); /* III. Quadrant */
-      points.push([xm + y, ym + x]); /*  IV. Quadrant */
-      radius = err;
-      if (radius <= y) err += ++y * 2 + 1;           /* e_xy+e_y < 0 */
-      if (radius > x || err > y) err += ++x * 2 + 1; /* e_xy+e_x > 0 or no 2nd y-step */
-    } while (x < 0);
-    this._ctx.restore();
+    const _add = (x: number, y: number) => {
+      const { x: px, y: py } = getCanvasCartesianPoint(x, y, this._ctx)
+      if (!outOfBounds(px, py, this._ctx)) {
+        points.push([px, py]);
+      }
+    }
+
+    let x = radius, y = 0;            /* II. quadrant from bottom left to top right */
+    let i, x2, e2, err = 2 - 2 * radius;                             /* error of 1.step */
+    radius = 1 - err;
+    for (; ;) {
+      i = 255 * Math.abs(err + 2 * (x + y) - 2) / radius;          /* get blend value of pixel */
+      _add(xm + x, ym - y); // i   /*   I. Quadrant */
+      _add(xm + y, ym + x); // i   /*  II. Quadrant */
+      _add(xm - x, ym + y); // i   /* III. Quadrant */
+      _add(xm - y, ym - x); // i   /*  IV. Quadrant */
+      if (x == 0) break;
+      e2 = err; x2 = x;                                    /* remember values */
+      if (err > y) {                                                /* x step */
+        i = 255 * (err + 2 * x - 1) / radius;                              /* outward pixel */
+        if (i < 255) {
+          _add(xm + x, ym - y + 1); // i
+          _add(xm + y - 1, ym + x); // i
+          _add(xm - x, ym + y - 1); // i
+          _add(xm - y + 1, ym - x); // i
+        }
+        err -= --x * 2 - 1;
+      }
+      if (e2 <= x2--) {                                             /* y step */
+        i = 255 * (1 - 2 * y - e2) / radius;                                /* inward pixel */
+        if (i < 255) {
+          _add(xm + x2, ym - y); // i
+          _add(xm + y, ym + x2); // i
+          _add(xm - x2, ym + y); // i
+          _add(xm - y, ym - x2); // i
+        }
+        err -= --y * 2 - 1;
+      }
+    }
     return points;
   };
 
