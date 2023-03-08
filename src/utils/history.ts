@@ -1,15 +1,16 @@
-import { SelfObservable } from './observable';
+import { SelfObservable } from "./observable";
 
 export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
-  private _history: T[];
-  private _future: T[];
-  private _searchIdx: number;
+  private _history: T[] = [];
+  private _future: T[] = [];
+  private _searchIdx: number = 0;
+  onUndo?: (item: T) => void;
+  onRedo?: (item: T) => void;
 
-  constructor() {
+  constructor(onUndo?: (item: T) => void, onRedo?: (item: T) => void) {
     super();
-    this._history = [];
-    this._future = [];
-    this._searchIdx = 0;
+    this.onUndo = onUndo;
+    this.onRedo = onRedo;
   }
 
   get past() {
@@ -36,21 +37,27 @@ export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
   }
 
   undo() {
+    this._searchIdx = 0;
     if (this._history.length === 0) {
-      return false;
+      return undefined;
     }
-    this._future.unshift(this._history.pop()!);
+    const last = this._history.pop()!;
+    this._future.unshift(last);
+    this.onUndo?.(last);
     this._call();
-    return true;
+    return last;
   }
 
   redo() {
+    this._searchIdx = 0;
     if (this._future.length === 0) {
-      return false;
+      return undefined;
     }
-    this._history.push(this._future.shift()!);
+    const next = this._future.shift()!;
+    this._history.push(next);
+    this.onRedo?.(next);
     this._call();
-    return true;
+    return next;
   }
 
   clear() {
@@ -72,18 +79,16 @@ export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
       backward: () => {
         if (this._searchIdx < this.past.length) {
           this._searchIdx++;
-          const cmd = this.past[this.past.length - this._searchIdx];
-          return cmd;
+          return this.past[this.past.length - this._searchIdx];
         }
+        return undefined;
       },
       forward: () => {
         if (this._searchIdx > 0) {
           this._searchIdx--;
-          const cmd = this.past[this.past.length - this._searchIdx];
-          if (cmd) {
-            return cmd;
-          }
+          return this.past[this.past.length - this._searchIdx];
         }
+        return undefined;
       },
     };
   }

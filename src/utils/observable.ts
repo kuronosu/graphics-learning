@@ -23,7 +23,7 @@ export class SelfObservable<
 }
 
 export class ObservableValue<T> extends BaseObservable<T> {
-  _value: T;
+  private _value: T;
 
   constructor(initialValue: T) {
     super();
