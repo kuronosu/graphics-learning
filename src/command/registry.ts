@@ -17,7 +17,10 @@ export class CommandRegistry {
     if (!commandRegister) {
       throw new Error(`Command ${command} not found`);
     }
-    if (commandRegister.paramsCount !== args.length) {
+    if (
+      commandRegister.paramsCount != -1 &&
+      commandRegister.paramsCount !== args.length
+    ) {
       throw new Error(`Invalid number of arguments for command ${command}`);
     }
     const result = await commandRegister.command(...args);

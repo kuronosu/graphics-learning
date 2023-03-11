@@ -76,6 +76,8 @@ export default class Turtle {
 
       ["color", [3, this.setColor]],
       ["para", [3, this.each]],
+
+      ["poligono", [-1, this.polygon]],
     ]);
   }
 
@@ -376,13 +378,6 @@ export default class Turtle {
     const { x, y } = cartesianToCanvasPoint(this.x, this.y, this._drawContext);
     next.push([x, y]);
     const fillColor = this._drawContext.getImageData(x, y, 1, 1).data;
-    console.log(
-      fillColor,
-      this._drawContext.getImageData(x+1, y, 1, 1).data,
-      this._drawContext.getImageData(x, y+1, 1, 1).data,
-      this._drawContext.getImageData(x-1, y, 1, 1).data,
-      this._drawContext.getImageData(x, y-1, 1, 1).data
-    );
 
     const fn = this.animationEnabled
       ? action.paint
@@ -398,6 +393,7 @@ export default class Turtle {
       }
       visited[`${x},${y}`] = true;
       const currentColor = this._drawContext.getImageData(x, y, 1, 1).data;
+      // check if color is equal (alpha included)
       if (eqPixel(currentColor, fillColor, true)) {
         await fn(x, y);
         pixels.push({ x, y, color: this.color });
@@ -412,6 +408,38 @@ export default class Turtle {
       }
     }
     return { data: pixels };
+  };
+
+  polygon: Command = async (...positions: number[]) => {
+    if (positions.length < 4) {
+      throw new Error("El polígono debe tener al menos 3 puntos");
+    }
+    if (positions.length % 2 !== 0) {
+      throw new Error("Debes enviar un número par de parámetros");
+    }
+
+    const points: Point[] = positions.reduce<Point[]>(
+      (acc, _, i) =>
+        i % 2 ? acc : [...acc, { x: positions[i], y: positions[i + 1] }],
+      []
+    );
+    points.unshift(this.position);
+    points.push(this.position);
+    const pixels: Pixel[] = [];
+
+    for (let i = 0; i < points.length - 1; i++) {
+      console.log(points[i], points[i + 1]);
+      pixels.push(
+        ...this._line(
+          points[i].x,
+          points[i].y,
+          points[i + 1].x,
+          points[i + 1].y
+        )
+      );
+    }
+
+    return { data: checkBounds(pixels, this._drawContext) };
   };
 
   // Pen methods

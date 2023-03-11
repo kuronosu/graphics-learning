@@ -20,6 +20,10 @@ export function setupCommands(
   }
 
   context.registry.commands.forEach(({ paramsCount }, name) => {
+    if (paramsCount === -1) {
+      helpContainer.appendChild(li({ text: `${name}(n1, n2, ...)` }));
+      return;
+    }
     helpContainer.appendChild(
       li({
         text: `${name}(${Array(paramsCount).fill("n").join(", ")})`,

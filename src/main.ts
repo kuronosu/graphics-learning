@@ -2,6 +2,7 @@ import { setupCommands } from "./command";
 import setupGrid from "./grid";
 import "./style.css";
 import Turtle from "./turtle/turtle";
+import sleep from "./utils/sleep";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 <div class="panels">
@@ -61,10 +62,10 @@ setTimeout(() => {
   para(5, 20, 1)
   xy(-2, 2)
   color(0, 255, 0)
+  poligono(5, 2, -4, -3)
+  color(25,229,230)
   relleno()
   `;
-  const sleep = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
   (async () => {
     for (const c of commads.split("\n").filter((c) => c.trim() !== "")) {
       $commandEntry.value = c.trim();
