@@ -69,6 +69,7 @@ export default class Turtle {
       ["linea", [2, this.line]],
 
       ["color", [3, this.setColor]],
+      ["para", [3, this.each]],
     ]);
   }
 
@@ -159,6 +160,18 @@ export default class Turtle {
 
   // Equivalnet on canvas methods
 
+  _line = (x0: number, y0: number, x1: number, y1: number) => {
+    return line(
+      cartesianToCanvasX(x0 * this.scale, this._drawContext),
+      cartesianToCanvasY(y0 * this.scale, this._drawContext),
+      cartesianToCanvasX(x1 * this.scale, this._drawContext),
+      cartesianToCanvasY(y1 * this.scale, this._drawContext),
+      this._color,
+      true,
+      2
+    );
+  };
+
   // Draw methods
 
   draw = () => {
@@ -199,15 +212,7 @@ export default class Turtle {
   line: Command = async (x: number, y: number) => {
     const initialPosition = structuredClone({ x: this.x, y: this.y });
     const points = checkBounds(
-      line(
-        cartesianToCanvasX(this.x * this.scale, this._drawContext),
-        cartesianToCanvasY(this.y * this.scale, this._drawContext),
-        cartesianToCanvasX(x * this.scale, this._drawContext),
-        cartesianToCanvasY(y * this.scale, this._drawContext),
-        this._color,
-        true,
-        2
-      ),
+      this._line(this.x, this.y, x, y),
       this._drawContext
     );
     this.position = { x, y };
@@ -259,14 +264,11 @@ export default class Turtle {
       y: this.y + side * Math.sin(toRadians(this.angle)),
     };
     const edges = new Array(4).fill(0).flatMap((_, i) => {
-      const pixels = line(
-        cartesianToCanvasX(prevVertex.x * this.scale, this._drawContext),
-        cartesianToCanvasY(prevVertex.y * this.scale, this._drawContext),
-        cartesianToCanvasX(currentVertex.x * this.scale, this._drawContext),
-        cartesianToCanvasY(currentVertex.y * this.scale, this._drawContext),
-        this._color,
-        true,
-        2
+      const pixels = this._line(
+        prevVertex.x,
+        prevVertex.y,
+        currentVertex.x,
+        currentVertex.y
       );
       prevVertex = currentVertex;
       currentVertex = {
@@ -277,7 +279,6 @@ export default class Turtle {
     });
 
     const points = checkBounds(edges, this._drawContext);
-    console.log(points);
     if (this._penDown) {
       drawPixels(points, this._drawContext);
     }
@@ -285,6 +286,70 @@ export default class Turtle {
   };
 
   // todo implement fill, polygon, for loop
+
+  // each = async ({ from, to, step, space }: { from: number, to: number, step: number, space: number }) => {
+  each: Command = async (
+    from: number,
+    to: number,
+    space: number,
+    step: number = 0.5
+  ) => {
+    // const painted: number[][] = [];
+    // this._ctx.save();
+    if (space <= 0) {
+      return this.forward(to);
+    }
+
+    const pixels: Pixel[] = [];
+    const initialPosition = structuredClone(this.position);
+    const finalPosition = {
+      x: Math.round(this.x + (from + to) * Math.cos(toRadians(this.angle))),
+      y: Math.round(this.y + (from + to) * Math.sin(toRadians(this.angle))),
+    };
+
+    const forward = async (distance: number) => {
+      const xf = this.x + distance * Math.cos(toRadians(this.angle));
+      const yf = this.y + distance * Math.sin(toRadians(this.angle));
+      pixels.push(...this._line(this.x, this.y, xf, yf));
+      this.position = { x: xf, y: yf };
+    };
+
+    const upForward = async (distance: number) => {
+      this.position = {
+        x: Math.round(this.x + distance * Math.cos(toRadians(this.angle))),
+        y: Math.round(this.y + distance * Math.sin(toRadians(this.angle))),
+      };
+    };
+
+    if (from > 0) {
+      upForward(from);
+    }
+
+    let restDistance = Math.hypot(
+      finalPosition.x - this.x,
+      finalPosition.y - this.y
+    );
+    let prevDistance = restDistance;
+    while (prevDistance >= restDistance) {
+      if (step + space > restDistance) {
+        await forward(step > restDistance ? restDistance : step);
+        break;
+      }
+      await forward(step);
+      upForward(space);
+      prevDistance = restDistance;
+      restDistance = Math.hypot(
+        finalPosition.x - this.x,
+        finalPosition.y - this.y
+      );
+    }
+    this.position = { x: finalPosition.x, y: finalPosition.y };
+    return {
+      data: checkBounds(pixels, this._drawContext),
+      undo: () => (this.position = initialPosition),
+      redo: () => (this.position = finalPosition),
+    };
+  };
 
   // Pen methods
 
