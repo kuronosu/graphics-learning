@@ -59,25 +59,28 @@ export default class Turtle {
     this.draw();
   }
 
-  get availableCommands(): Map<string, [number, Command]> {
+  get availableCommands(): Map<
+    string,
+    [number, Command, string | null | undefined]
+  > {
     return new Map([
-      ["arriba", [0, this.penUp]],
-      ["abajo", [0, this.penDown]],
-      ["relleno", [0, this.fill]],
+      ["arriba", [0, this.penUp, null]],
+      ["abajo", [0, this.penDown, null]],
+      ["relleno", [0, this.fill, null]],
 
-      ["rotar", [1, this.rotate]],
-      ["circulo", [1, this.circle]],
-      ["adelante", [1, this.forward]],
-      ["atras", [1, this.backward]],
-      ["cuadrado", [1, this.square]],
+      ["rotar", [1, this.rotate, null]],
+      ["circulo", [1, this.circle, null]],
+      ["adelante", [1, this.forward, null]],
+      ["atras", [1, this.backward, null]],
+      ["cuadrado", [1, this.square, null]],
 
-      ["xy", [2, this.xy]],
+      ["xy", [2, this.xy, null]],
       // ["linea", [2, this.line]],
 
-      ["color", [3, this.setColor]],
-      ["para", [3, this.each]],
+      ["color", [3, this.setColor, null]],
+      ["para", [3, this.each, ";"]],
 
-      ["poligono", [-1, this.polygon]],
+      ["poligono", [-1, this.polygon, null]],
     ]);
   }
 
@@ -428,7 +431,6 @@ export default class Turtle {
     const pixels: Pixel[] = [];
 
     for (let i = 0; i < points.length - 1; i++) {
-      console.log(points[i], points[i + 1]);
       pixels.push(
         ...this._line(
           points[i].x,

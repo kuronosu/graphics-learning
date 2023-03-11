@@ -14,9 +14,10 @@ export function setupCommands(
 ) {
   const context = new CommandsContext();
   context.registry.register("limpiar", 0, async () => ({ data: [] }));
+  // context.registry.registerSeparator("para", ";");
 
-  for (const [name, [arity, command]] of turtle.availableCommands) {
-    context.registry.register(name, arity, command);
+  for (const [name, [arity, command, sep]] of turtle.availableCommands) {
+    context.registry.register(name, arity, command, sep);
   }
 
   context.registry.commands.forEach(({ paramsCount }, name) => {

@@ -37,7 +37,12 @@ export default class CommandsContext {
   }
 
   parse(command: string) {
-    const cmd = detectFunctionCall(command);
+    let sep = ",";
+    this._registry.commands.forEach(({ sep: s }, name) => {
+      if (command.trim().startsWith(name)) sep = s;
+    });
+
+    const cmd = detectFunctionCall(command, sep);
     if (cmd === null) {
       throw new Error("Comando no reconocido");
     }

@@ -59,7 +59,7 @@ setTimeout(() => {
   rotar(45)
   cuadrado(10)
   rotar(180)
-  para(5, 20, 1)
+  para(5; 20; 1)
   xy(-2, 2)
   color(0, 255, 0)
   poligono(5, 2, -4, -3)
