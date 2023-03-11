@@ -178,3 +178,16 @@ export const createPixelContainer = function (color: Color) {
   };
   return { getPixels, setPixel, setPixelAA };
 };
+
+export const eqPixel = function (
+  p1: Uint8ClampedArray,
+  p2: Uint8ClampedArray,
+  alpha = false
+) {
+  return (
+    p1[0] == p2[0] &&
+    p1[1] == p2[1] &&
+    p1[2] == p2[2] &&
+    (!alpha || p1[3] == p2[3])
+  );
+};

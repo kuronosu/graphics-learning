@@ -1,10 +1,14 @@
 import { Color, Command, Pixel, Point } from "..";
+import sleep from "../utils/sleep";
 import { line } from "./draw";
 import { circle } from "./draw/circle";
 import {
+  cartesianToCanvasPoint,
   cartesianToCanvasX,
   cartesianToCanvasY,
+  drawPixel,
   drawPixels,
+  eqPixel,
   outOfCanvas,
   rotatePoint,
   toRadians,
@@ -31,6 +35,7 @@ export default class Turtle {
   private _penContext: CanvasRenderingContext2D;
   private _figure: number[][] = [];
   private _anchor: Point = { x: 0, y: 0 };
+  public animationEnabled = true;
 
   constructor(drawCanvas: HTMLCanvasElement, penCanvas: HTMLCanvasElement) {
     this._drawContext = drawCanvas.getContext("2d", {
@@ -58,6 +63,7 @@ export default class Turtle {
     return new Map([
       ["arriba", [0, this.penUp]],
       ["abajo", [0, this.penDown]],
+      ["relleno", [0, this.fill]],
 
       ["rotar", [1, this.rotate]],
       ["circulo", [1, this.circle]],
@@ -66,7 +72,7 @@ export default class Turtle {
       ["cuadrado", [1, this.square]],
 
       ["xy", [2, this.xy]],
-      ["linea", [2, this.line]],
+      // ["linea", [2, this.line]],
 
       ["color", [3, this.setColor]],
       ["para", [3, this.each]],
@@ -294,8 +300,6 @@ export default class Turtle {
     space: number,
     step: number = 0.5
   ) => {
-    // const painted: number[][] = [];
-    // this._ctx.save();
     if (space <= 0) {
       return this.forward(to);
     }
@@ -349,6 +353,65 @@ export default class Turtle {
       undo: () => (this.position = initialPosition),
       redo: () => (this.position = finalPosition),
     };
+  };
+
+  fill: Command = async () => {
+    const pixels: Pixel[] = [];
+    const action = {
+      c: 0,
+      paint: async (x: number, y: number) => {
+        // this._ctx.fillRect(x, y, 1, 1);
+        drawPixel({ x, y, color: this.color }, this._drawContext);
+        action.c++;
+        if (action.c > 1000) {
+          await sleep(1);
+          action.c = 0;
+        }
+      },
+    };
+
+    const visited: { [key: string]: boolean } = {};
+    // this._ctx.fillStyle = this._pen.hexColor;
+    const next: number[][] = [];
+    const { x, y } = cartesianToCanvasPoint(this.x, this.y, this._drawContext);
+    next.push([x, y]);
+    const fillColor = this._drawContext.getImageData(x, y, 1, 1).data;
+    console.log(
+      fillColor,
+      this._drawContext.getImageData(x+1, y, 1, 1).data,
+      this._drawContext.getImageData(x, y+1, 1, 1).data,
+      this._drawContext.getImageData(x-1, y, 1, 1).data,
+      this._drawContext.getImageData(x, y-1, 1, 1).data
+    );
+
+    const fn = this.animationEnabled
+      ? action.paint
+      : async (_: number, __: number) => {};
+
+    while (next.length > 0) {
+      const [x, y] = next.shift()!;
+      if (
+        visited[`${x},${y}`] === true ||
+        outOfCanvas(x, y, this._drawContext)
+      ) {
+        continue;
+      }
+      visited[`${x},${y}`] = true;
+      const currentColor = this._drawContext.getImageData(x, y, 1, 1).data;
+      if (eqPixel(currentColor, fillColor, true)) {
+        await fn(x, y);
+        pixels.push({ x, y, color: this.color });
+        next.push(
+          ...[
+            [x + 1, y],
+            [x, y + 1],
+            [x - 1, y],
+            [x, y - 1],
+          ]
+        );
+      }
+    }
+    return { data: pixels };
   };
 
   // Pen methods

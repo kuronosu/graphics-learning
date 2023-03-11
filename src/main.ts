@@ -59,6 +59,9 @@ setTimeout(() => {
   cuadrado(10)
   rotar(180)
   para(5, 20, 1)
+  xy(-2, 2)
+  color(0, 255, 0)
+  relleno()
   `;
   const sleep = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
