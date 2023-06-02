@@ -1,15 +1,18 @@
 import li from "../components/li";
 import Turtle from "../turtle/turtle";
 import { drawPixels } from "../turtle/utils";
+import { commandText } from "../utils/commands";
+import { downloadData } from "../utils/files";
 import { commandItem, headerItem } from "./components";
 import CommandsContext from "./context";
-export * from "./registry";
 export * from "./parser";
+export * from "./registry";
 
 export function setupCommands(
   historyContainer: HTMLOListElement,
   commandEntry: HTMLInputElement,
   helpContainer: HTMLUListElement,
+  downloadBtn: HTMLButtonElement,
   turtle: Turtle
 ) {
   const context = new CommandsContext();
@@ -20,19 +23,26 @@ export function setupCommands(
     context.registry.register(name, arity, command, sep);
   }
 
-  context.registry.commands.forEach(({ paramsCount }, name) => {
+  context.registry.commands.forEach(({ paramsCount, sep }, name) => {
     if (paramsCount === -1) {
-      helpContainer.appendChild(li({ text: `${name}(n1, n2, ...)` }));
+      helpContainer.appendChild(li({ text: `${name}(n1${sep} n2${sep} ...)` }));
       return;
     }
     helpContainer.appendChild(
       li({
-        text: `${name}(${Array(paramsCount).fill("n").join(", ")})`,
+        text: `${name}(${Array(paramsCount).fill("n").join(`${sep} `)})`,
       })
     );
   });
 
   const history = context.history;
+
+  downloadBtn.addEventListener("click", () => {
+    const content = history.past
+      .map((it) => commandText(it, context.registry))
+      .join("\n\t");
+    downloadData(`Inicio\n\t${content}\nFin`, "program.txt");
+  });
 
   commandEntry.value = "";
   historyContainer.innerHTML = "";
@@ -53,13 +63,15 @@ export function setupCommands(
     historyContainer.innerHTML = "";
     historyContainer.appendChild(headerItem("Inicio"));
     for (const command of history.past) {
-      historyContainer.appendChild(commandItem(command));
+      historyContainer.appendChild(commandItem(command, context.registry));
       drawPixels(command.result.data, ctx);
     }
     turtle.draw();
     historyContainer.appendChild(headerItem("Fin"));
     for (const command of history.future) {
-      historyContainer.appendChild(commandItem(command, true));
+      historyContainer.appendChild(
+        commandItem(command, context.registry, true)
+      );
     }
   });
 

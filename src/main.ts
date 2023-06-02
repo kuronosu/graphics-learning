@@ -17,6 +17,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   </div>
   <div class="panel right-panel">
     <ol id="history-container"></ol>
+    <button id="downloadBtn">Descargar</button>
   </div>
 </div>
 <div class="controls">
@@ -37,6 +38,7 @@ setupCommands(
   document.getElementById("history-container") as HTMLOListElement,
   $commandEntry,
   document.getElementById("help") as HTMLUListElement,
+  document.getElementById("downloadBtn") as HTMLButtonElement,
   turtle
 );
 

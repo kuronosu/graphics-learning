@@ -10,6 +10,10 @@ export class CommandRegistry {
     return this._commands;
   }
 
+  getCommand(name: string) {
+    return this._commands.get(name);
+  }
+
   register(
     name: string,
     paramsCount: number,
