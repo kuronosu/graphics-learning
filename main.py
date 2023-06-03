@@ -76,9 +76,10 @@ if __name__ == "__main__":
     tur.degrees()
     tur.colormode(255)
     tur.setup(600, 600)
+    tur.width(3)
     # Esto es para evitar la animacion
-    tur.speed("fastest")
-    tur.tracer(0, 0)
+    tur.speed("fast")
+    # tur.tracer(0, 0)
 
     xy(-10, 10)
     adelante(10)
@@ -103,6 +104,5 @@ if __name__ == "__main__":
     color(25, 229, 230)
     # relleno()
 
-    # Dibujamos
-    tur.update()
+    # tur.update()
     tur.done()
