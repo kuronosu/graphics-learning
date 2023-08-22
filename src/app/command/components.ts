@@ -1,7 +1,15 @@
-import { CommandResult } from "..";
+import type { CommandResult } from "..";
 import li from "../components/li";
-import { commandText } from "../utils/commands";
-import { CommandRegistry } from "./registry";
+import type CommandRegistry from "./registry";
+
+function commandText(command: CommandResult, registry?: CommandRegistry) {
+  let sep = ",";
+  const registeredCommand = registry?.getCommand(command.command);
+  if (registeredCommand !== undefined) {
+    sep = registeredCommand.sep;
+  }
+  return `${command.command}(${command.args.join(sep + " ")})`;
+}
 
 export function commandItem(
   command: CommandResult,

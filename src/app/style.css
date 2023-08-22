@@ -1,0 +1,134 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  /* background-color: blue; */
+  background-color: whitesmoke;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  color: black;
+}
+
+#app {
+  /* background-color: red; */
+  display: flex;
+  flex-direction: column;
+}
+
+.panels {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  border-bottom: 2px solid #333;
+  min-height: 650px;
+}
+
+.panels > div:nth-child(2) {
+  min-width: 650px;
+  flex: 1;
+  display: flex;
+  place-items: center;
+  place-content: center;
+  border-left: 1px solid #333;
+  border-right: 1px solid #333;
+}
+
+.panels > div:first-child,
+.panels > div:last-child {
+  width: 20%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-size: 1.5em;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: 100%;
+  color: whitesmoke;
+}
+
+#entry {
+  width: 100%;
+  border: none;
+  font-size: 1.5em;
+  margin: 10px 20px;
+  background-color: transparent;
+  border-bottom: 2px solid #333;
+  text-align: center;
+}
+
+#entry:focus {
+  outline: none;
+  border-bottom: 2px solid black;
+}
+
+canvas {
+  width: 600px;
+  height: 600px;
+  position: absolute;
+  border: 1px solid #333;
+}
+
+#history {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 0;
+  /* Aligns items to the left */
+  text-align: start;
+  padding-left: 10px;
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.ml-1 {
+  margin-left: 20px;
+}
+
+.text-gray-400 {
+  color: #999;
+}
+
+.text-gray-800 {
+  color: #333;
+}
+
+ol,
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.left {
+  padding-left: 16px;
+}
+
+.left > h3 {
+  margin-bottom: 0;
+}
+
+#status {
+  margin-top: auto;
+}

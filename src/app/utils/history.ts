@@ -1,6 +1,8 @@
 import { SelfObservable } from "./observable";
 
-export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
+export default class HistoryManager<T> extends SelfObservable<
+  HistoryManager<T>
+> {
   private _history: T[] = [];
   private _future: T[] = [];
   private _searchIdx: number = 0;
@@ -17,6 +19,10 @@ export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
     return this._history.slice();
   }
 
+  get latest(): T | undefined {
+    return this._history[this._history.length - 1];
+  }
+
   get future() {
     return this._future.slice();
   }
@@ -31,6 +37,7 @@ export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
   }
 
   add(item: T) {
+    this._searchIdx = 0;
     this._history.push(item);
     this._future = [];
     this._call();
@@ -61,6 +68,7 @@ export class HistoryManager<T> extends SelfObservable<HistoryManager<T>> {
   }
 
   clear() {
+    this._searchIdx = 0;
     this._history = [];
     this._future = [];
     this._call();

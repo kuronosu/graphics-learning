@@ -1,6 +1,7 @@
-import { Command, CommandResult } from "..";
+import type { Command, CommandResult } from "..";
+import { SelfObservable } from "../utils/observable";
 
-export class CommandRegistry {
+export default class CommandRegistry extends SelfObservable<CommandRegistry> {
   private _commands: Map<
     string,
     { paramsCount: number; command: Command; sep: string }
@@ -24,6 +25,7 @@ export class CommandRegistry {
       sep = ",";
     }
     this._commands.set(name, { paramsCount, command, sep });
+    this._call();
   }
 
   async execute(command: string, ...args: number[]): Promise<CommandResult> {
@@ -39,7 +41,6 @@ export class CommandRegistry {
         `Numero de parametros incorrecto para el comando '${command}'`
       );
     }
-    const result = await commandRegister.command(...args);
-    return { command, args, result };
+    return commandRegister.command(...args);
   }
 }

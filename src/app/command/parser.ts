@@ -1,4 +1,9 @@
-export default function detectFunctionCall(str: string, paramsSeparator = ",") {
+import type { ParsedCommand } from "..";
+
+export default function detectFunctionCall(
+  str: string,
+  paramsSeparator = ","
+): ParsedCommand | null {
   // La expresión regular para detectar una llamada a función válida con números decimales positivos o negativos es:
   // (nombre_de_función)\s*\(\s*([-+]?\d+(\.\d+)?(\s*,\s*[-+]?\d+(\.\d+)?)*)?\s*\)
   // const pattern =

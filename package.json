@@ -1,5 +1,5 @@
 {
-  "name": "graphics-learning",
+  "name": "graph-test",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "typescript": "^4.9.3",
-    "vite": "^4.1.0"
+    "@types/node": "^20.5.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
   }
 }
