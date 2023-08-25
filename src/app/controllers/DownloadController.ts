@@ -3,7 +3,6 @@ import { commandText } from "../components/command";
 import getElement from "../utils/getElement";
 import { CommandsController } from ".";
 import { ObservableValue } from "../utils/observable";
-import debounce from "../utils/debounce";
 
 type Selectors = {
   upload: string;
@@ -35,18 +34,6 @@ export default class DownloadController {
   }
 
   private setupHandlers() {
-    const setIsRunning = debounce((isRunning: boolean) => {
-      this.isRunning.value = isRunning;
-    }, 100);
-
-    this._commandsController.isRunning.observe((isRunning) => {
-      if (isRunning) {
-        this.isRunning.value = true;
-      } else {
-        setIsRunning(false);
-      }
-    });
-
     this.isRunning.observe((isRunning) => {
       this.uploadButton.disabled = isRunning;
       this.downloadButton.disabled = isRunning;
@@ -84,10 +71,14 @@ export default class DownloadController {
           alert("El código no contiene comandos");
           return;
         }
+        this.isRunning.value = true;
         this._commandsController
           .runScript(rawCommands.slice(1, rawCommands.length - 1).join("\n"))
           .catch((e) => {
             alert(e.message);
+          })
+          .finally(() => {
+            this.isRunning.value = false;
           });
       });
     });
