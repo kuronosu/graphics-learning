@@ -156,6 +156,8 @@ export default class CommandsController {
   }
 
   async runScript(script: string, timeout: number = 50) {
+    this.history.clear();
+    await sleep(100);
     const commands = script
       .split("\n")
       .map((it) => it.trim())

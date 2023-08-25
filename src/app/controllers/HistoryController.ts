@@ -1,5 +1,5 @@
 import type { CommandResult } from "..";
-import { commandItem, headerItem } from "../command/components";
+import { commandItem, headerItem } from "../components/command";
 import CommandRegistry from "../command/registry";
 import HistoryManager from "../utils/history";
 

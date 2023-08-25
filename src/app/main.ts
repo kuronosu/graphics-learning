@@ -1,4 +1,5 @@
 import CommandRegistry from "./command/registry.ts";
+import DownloadController from "./controllers/DownloadController.ts";
 import GridController from "./controllers/GridController.ts";
 import PenController from "./controllers/PenController.ts";
 import {
@@ -25,7 +26,9 @@ import HistoryManager from "./utils/history.ts";
     </div>
     <div>
       <ol id="history"></ol>
-      <button>Descargar</button>
+      <button id="upload">Subir</button>
+      <button id="download">Descargar</button>
+      <button id="downloadPython">Descargar Python</button>
     </div>
   </div>
   <div class="controls">
@@ -41,38 +44,46 @@ import HistoryManager from "./utils/history.ts";
   new PenController("#pointer", "#status", history);
   new GridController("#grid");
   const cc = new CommandsController("#entry", "#help", { history, registry });
+  new DownloadController(
+    {
+      upload: "#upload",
+      download: "#download",
+      downloadPython: "#downloadPython",
+    },
+    cc
+  );
 
-  cc.runScript(
-    `
-    xy(-5,5)
-    adelante(5)
-    rotar(90)
-    adelante(5)
-    rotar(90)
-    adelante(5)
-    rotar(90)
-    adelante(5)
-    rotar(90)
-    xy(0,0)
-    color(255,0,0)
-    circulo(12.75)
-    color(0,0,255)
-    rotar(-45)
-    cuadrado(5)
-    rotar(-180)
-    para(2.5; 10; 0.5)
-    xy(-1, 1)
-    color(0, 255, 0)
-    poligono(2.5, 1, -2, -1.5)
-    color(25,229,230)
-    rotar(-50)
-    linea(0,-9)
-    xy(5,0.5)
-    color(255, 255, 0)
-    rellenar()
-    xy(-6,5)
-    color(215, 224, 206)
-    rellenar()
-    `
-  ).catch(alert);
+  // cc.runScript(
+  //   `
+  //   xy(-5,5)
+  //   adelante(5)
+  //   rotar(90)
+  //   adelante(5)
+  //   rotar(90)
+  //   adelante(5)
+  //   rotar(90)
+  //   adelante(5)
+  //   rotar(90)
+  //   xy(0,0)
+  //   color(255,0,0)
+  //   circulo(12.75)
+  //   color(0,0,255)
+  //   rotar(-45)
+  //   cuadrado(5)
+  //   rotar(-180)
+  //   para(2.5; 10; 0.5)
+  //   xy(-1, 1)
+  //   color(0, 255, 0)
+  //   poligono(2.5, 1, -2, -1.5)
+  //   color(25,229,230)
+  //   rotar(-50)
+  //   linea(0,-9)
+  //   xy(5,0.5)
+  //   color(255, 255, 0)
+  //   rellenar()
+  //   xy(-6,5)
+  //   color(215, 224, 206)
+  //   rellenar()
+  //   `
+  // ).catch(alert);
 })();
