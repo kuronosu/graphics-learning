@@ -90,7 +90,7 @@ export default class CanvasController {
       data: drawer.data,
       pen,
     };
-  }
+  };
 
   // 1 param commands
   rotate: Command = (angle: number) => {

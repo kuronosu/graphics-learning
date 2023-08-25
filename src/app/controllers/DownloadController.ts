@@ -1,7 +1,7 @@
-import { downloadData, uploadData } from "../utils/files";
-import { commandText } from "../components/command";
-import getElement from "../utils/getElement";
 import { CommandsController } from ".";
+import { commandText } from "../components/command";
+import { downloadData, uploadData } from "../utils/files";
+import getElement from "../utils/getElement";
 import { ObservableValue } from "../utils/observable";
 
 type Selectors = {

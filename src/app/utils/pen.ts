@@ -1,10 +1,6 @@
 import type { Color, IInmutablePen } from "..";
 import { PEN_SCALE, SCALE } from "../constants";
-import {
-  cartesianToCanvasX,
-  cartesianToCanvasY,
-  rotatePoint,
-} from "../utils";
+import { cartesianToCanvasX, cartesianToCanvasY, rotatePoint } from "../utils";
 import { checkColor } from "./colors";
 
 export default class ImmutablePen implements IInmutablePen {

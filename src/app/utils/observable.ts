@@ -13,7 +13,7 @@ export abstract class BaseObservable<T> implements Observable<T> {
 }
 
 export class SelfObservable<
-  T extends SelfObservable<T>,
+  T extends SelfObservable<T>
 > extends BaseObservable<T> {
   async _call(this: T) {
     for (const observer of this._observers) {

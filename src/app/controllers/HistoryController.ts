@@ -1,6 +1,6 @@
 import type { CommandResult } from "..";
-import { commandItem, headerItem } from "../components/command";
 import CommandRegistry from "../command/registry";
+import { commandItem, headerItem } from "../components/command";
 import HistoryManager from "../utils/history";
 
 export default class HistoryController {

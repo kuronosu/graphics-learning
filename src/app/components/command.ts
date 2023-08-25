@@ -1,8 +1,11 @@
 import type { CommandResult } from "..";
-import li from "./li";
 import type CommandRegistry from "../command/registry";
+import li from "./li";
 
-export function commandText(command: CommandResult, registry?: CommandRegistry) {
+export function commandText(
+  command: CommandResult,
+  registry?: CommandRegistry
+) {
   let sep = ",";
   const registeredCommand = registry?.getCommand(command.command);
   if (registeredCommand !== undefined) {
