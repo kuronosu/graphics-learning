@@ -6,13 +6,9 @@ export default class HistoryManager<T> extends SelfObservable<
   private _history: T[] = [];
   private _future: T[] = [];
   private _searchIdx: number = 0;
-  onUndo?: (item: T) => void;
-  onRedo?: (item: T) => void;
 
-  constructor(onUndo?: (item: T) => void, onRedo?: (item: T) => void) {
+  constructor() {
     super();
-    this.onUndo = onUndo;
-    this.onRedo = onRedo;
   }
 
   get past() {
@@ -50,7 +46,6 @@ export default class HistoryManager<T> extends SelfObservable<
     }
     const last = this._history.pop()!;
     this._future.unshift(last);
-    this.onUndo?.(last);
     this._call();
     return last;
   }
@@ -62,7 +57,6 @@ export default class HistoryManager<T> extends SelfObservable<
     }
     const next = this._future.shift()!;
     this._history.push(next);
-    this.onRedo?.(next);
     this._call();
     return next;
   }

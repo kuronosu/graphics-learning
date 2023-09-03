@@ -10,6 +10,7 @@ export type Color = {
 export interface IDrawer {
   readonly data: ImageData;
   pixel(x: number, y: number, color: Color): void;
+  getPixel(x: number, y: number): Color;
 }
 
 export interface IInmutablePen {
