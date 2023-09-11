@@ -1,7 +1,7 @@
 import type { CommandResult, ParsedCommand } from "..";
 import detectFunctionCall from "../command/parser";
 import CommandRegistry from "../command/registry";
-import li from "../components/li";
+
 import getElement from "../utils/getElement";
 import HistoryManager from "../utils/history";
 import { ObservableValue } from "../utils/observable";
@@ -11,19 +11,16 @@ export default class CommandsController {
   private _history: HistoryManager<CommandResult>;
   private _registry: CommandRegistry;
   private readonly _input: HTMLInputElement;
-  private readonly _helpContainer: HTMLInputElement;
   readonly isRunning = new ObservableValue(false);
 
   constructor(
     inputSelector: string,
-    helpSelector: string,
     options?: {
       registry?: CommandRegistry;
       history?: HistoryManager<CommandResult>;
     }
   ) {
     this._input = getElement(inputSelector);
-    this._helpContainer = getElement(helpSelector);
 
     this._history = options?.history ?? new HistoryManager<CommandResult>();
     this._registry = options?.registry ?? new CommandRegistry();
@@ -39,7 +36,6 @@ export default class CommandsController {
   }
 
   private setUpUI() {
-    this.setUpHelp();
     this.setUpInputs();
 
     document.addEventListener("keydown", (e) => {
@@ -56,28 +52,6 @@ export default class CommandsController {
         }
       }
     });
-  }
-
-  private renderHelp(registry: CommandRegistry) {
-    this._helpContainer.innerHTML = "";
-    registry.commands.forEach(({ paramsCount, sep }, name) => {
-      if (paramsCount === -1) {
-        this._helpContainer.appendChild(
-          li({ text: `${name}(n1${sep} n2${sep} ...)` })
-        );
-        return;
-      }
-      this._helpContainer.appendChild(
-        li({
-          text: `${name}(${Array(paramsCount).fill("n").join(`${sep} `)})`,
-        })
-      );
-    });
-  }
-
-  private setUpHelp() {
-    this._registry.observe(this.renderHelp);
-    this.renderHelp(this._registry);
   }
 
   private setUpInputs() {
