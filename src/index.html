@@ -10,32 +10,35 @@
   <body>
     <div class="snap snap-mandatory snap-y overflow-y-auto scroll-smooth">
       <header
-        class="z-10 shadow-2xl bg-gray-900 text-neutral-400 sticky top-0 flex w-full h-[130px]"
+        class="z-10 shadow-2xl bg-gray-900 text-neutral-400 sticky top-0 flex w-full md:h-[130px]"
       >
-        <nav class="container mx-auto flex py-4">
-          <a class="flex w-1/3" href="#title">
+        <nav class="container mx-auto flex py-4 gap-2 flex-col md:flex-row
+        ">
+          <a class="flex" href="#title">
             <img
               src="./assets/logo_udenar.png"
-              class="invert w-1/2 object-contain min-w-[300px]"
+              class="invert mx-auto w-24 h-24 object-cover object-left lg:min-w-[300px] lg:max-w-xs lg:object-contain md:ml-2"
             />
           </a>
-          <div class="flex flex-row justify-center items-center gap-12 w-1/3">
+          <div class="flex justify-center items-center gap-6 mx-auto flex-col md:flex-row">
             <a class="text-xl hover:text-white" href="#problem">
               Problematica
             </a>
             <a class="text-xl hover:text-white" href="#objectives">
               Objetivos
             </a>
-            <a class="text-xl hover:text-white" href="#solution"> Solucion </a>
+            <a class="text-xl hover:text-white" href="#solution">Solucion</a>
+            <a class="text-xl hover:text-white" href="#solution">Creditos</a>
           </div>
-          <div class="w-1/3 flex justify-end items-center">
+          
             <a
               href="/app"
-              class="bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded"
+              target="_blank"
+              class="bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded md:ml-auto md:mr-2 m-auto"
             >
-              Ingresar
+              Abrir
             </a>
-          </div>
+          
         </nav>
       </header>
       <main class="text-white md:h-[calc(100vh-130px)]">
@@ -75,79 +78,6 @@
           <h2 class="text-5xl font-bold text-center mb-12 mt-6 uppercase">
             PROBLEMÁTICA
           </h2>
-          <!-- <div class="flex flex-col">
-            <div class="w-full container snap-x snap-mandatory flex flex-row justify-between items-center overflow-hidden gap-6">
-              <div
-                id="problem-1"
-                class="w-96 snap-center rounded-lg bg-black bg-opacity-50 p-8 text-justify"
-              >
-                La enseñanza de programación en el primer curso de informática
-                (CS1) se presenta como una tarea compleja. A menudo, los
-                estudiantes novatos carecen de las habilidades necesarias,
-                como la resolución de problemas y la aplicación de conceptos
-                matemáticos. Además, factores como métodos de enseñanza
-                inapropiados y la falta de resultados inmediatos pueden
-                desmotivar a los estudiantes. La complejidad cognitiva, la
-                introducción de nuevos conceptos y la falta de experiencia
-                previa añaden dificultad.
-              </div>
-              <div
-                id="problem-2"
-                class="w-96 snap-center rounded-lg bg-black bg-opacity-50 p-8 text-justify"
-              >
-                <p>
-                  El éxito en el CS1 es crucial, ya que influye en la
-                  formación de futuros programadores. Aprender a programar va
-                  más allá de la codificación, cultivando el pensamiento
-                  crítico y habilidades de resolución de problemas. Sin
-                  embargo, los estudiantes a menudo luchan con el pensamiento
-                  algorítmico y la resolución de problemas.
-                </p>
-              </div>
-              <div
-                id="problem-3"
-                class="w-96 snap-center rounded-lg bg-black bg-opacity-50 p-8 text-justify"
-              >
-                <p>
-                  Esto se reflejó en la evaluación PISA 2015, donde Colombia
-                  obtuvo resultados por debajo del promedio de la OECD en
-                  ciencias, matemáticas y resolución colaborativa de
-                  problemas. Si no se abordan estas dificultades desde el
-                  principio, la formación en programación podría verse
-                  comprometida.
-                </p>
-              </div>
-              <div
-                id="problem-4"
-                class="w-96 snap-center rounded-lg bg-black bg-opacity-50 p-8 text-justify"
-              >
-                <p>
-                  Para superar estos desafíos, se requiere una pedagogía
-                  innovadora. Enfocarse en el pensamiento algorítmico y las
-                  estrategias de resolución de problemas desde el CS1 es
-                  esencial. La programación no es solo codificación, sino el
-                  desarrollo de habilidades cognitivas fundamentales. Con
-                  bases sólidas, los futuros programadores estarán mejor
-                  preparados para los desafíos de la industria del software en
-                  constante cambio.
-                </p>
-              </div>
-            </div>
-            <div class="flex w-full justify-center gap-4 mt-4">
-              <a onClick={scrollToX("problem-1")}>
-                <div class="w-5 h-5 bg-sky-500 rounded-full" />
-              </a>
-              <a onClick={scrollToX("problem-2")}>
-                <div class="w-5 h-5 bg-sky-500 rounded-full" />
-              </a>
-              <a onClick={scrollToX("problem-3")}>
-                <div class="w-5 h-5 bg-sky-500 rounded-full" />
-              </a>
-              <a onClick={scrollToX("problem-4")}>
-                <div class="w-5 h-5 bg-sky-500 rounded-full" />
-              </a>
-            </div>
-          </div> -->
           <div class="container mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div class="bg-black bg-opacity-70 rounded-lg p-4 shadow-md">
@@ -260,9 +190,11 @@
           class="h-full w-full flex items-center justify-center snap-end bg-slate-800"
         >
           <div class="container mx-auto">
-            <div class="flex w-full gap-12 items-center">
+            <div
+              class="flex w-full gap-6 lg:gap-12 items-center flex-col-reverse lg:flex-row"
+            >
               <img
-                class="w-1/2 object-contain"
+                class="md:w-4/5 lg:w-1/2 object-contain w-full"
                 src="./assets/imgSolu.jpg"
                 alt="app image"
               />
@@ -280,6 +212,34 @@
               </div>
             </div>
           </div>
+        </section>
+        <section
+          id="credits"
+          class="w-full px-12 py-4 text-xs text-white bg-stone-800 snap-end"
+        >
+          <footer
+            class="mx-auto container flex flex-col-reverse lg:flex-row items-center justify-start gap-4 text-center"
+          >
+            <img
+              src="./assets/LOGO-UDENAR-ACREDITACION-2023.png"
+              alt="Logo Udenar"
+            />
+            <div class="flex flex-col lg:text-start">
+              <span>Institución de Educación Superior</span>
+              <span
+                >Acreditación de Alta calidad, Resolución No. 000022 - Enero 11
+                de 2023</span
+              >
+              <span>Vigilada por MINEDUCACIÓN</span>
+            </div>
+            <div class="flex flex-col lg:ml-auto lg:text-end">
+              <span>© 2023 Universidad de Nariño</span>
+              <span>Algunos derechos reservados.</span>
+              <span class="font-bold">Autores:</span>
+              <span>Andrés Felipe Martínez</span>
+              <span>Omar David Timana</span>
+            </div>
+          </footer>
         </section>
       </main>
     </div>
