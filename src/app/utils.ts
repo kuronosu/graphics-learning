@@ -44,7 +44,7 @@ export const cartesianToCanvasX = function (
   scale: number = 1
 ) {
   const { width } = ctx.canvas;
-  return x * scale + width / 2;
+  return Math.round(x * scale + width / 2);
 };
 
 export const cartesianToCanvasY = function (
@@ -53,7 +53,7 @@ export const cartesianToCanvasY = function (
   scale: number = 1
 ) {
   const { height } = ctx.canvas;
-  return height / 2 - y * scale;
+  return Math.round(height / 2 - y * scale);
 };
 
 export const cartesianToCanvasPoint = function (
