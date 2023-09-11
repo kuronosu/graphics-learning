@@ -33,29 +33,62 @@ export default class GridController {
     const { width, height } = this.ctx.canvas;
     const x = width / 2;
     const y = height / 2;
+    const lineColor = "rgba(0,0,0,0.2)";
+    const textColor = "rgba(0,0,0,0.6)";
 
     this.ctx.save();
-    this.ctx.beginPath();
-    this.ctx.strokeStyle = "rgba(0,0,0,0.2)";
     this.ctx.lineWidth = 0.5;
     for (let i = x + SCALE; i < width; i += SCALE) {
+      this.ctx.beginPath();
+      this.ctx.strokeStyle = lineColor;
       this.ctx.moveTo(i, 0);
       this.ctx.lineTo(i, height);
+      this.ctx.stroke();
+      this.ctx.strokeStyle = textColor;
+      this.ctx.textBaseline = "top";
+      this.ctx.textAlign = "right";
+      this.ctx.strokeText(`${(i - x) / SCALE}`, i, 0);
+      this.ctx.closePath();
     }
     for (let i = x - SCALE; i > 0; i -= SCALE) {
+      this.ctx.strokeStyle = lineColor;
+      this.ctx.beginPath();
       this.ctx.moveTo(i, 0);
       this.ctx.lineTo(i, height);
-    }
-    for (let i = y + SCALE; i < height; i += SCALE) {
-      this.ctx.moveTo(0, i);
-      this.ctx.lineTo(width, i);
+      this.ctx.stroke();
+      this.ctx.strokeStyle = textColor;
+      this.ctx.textBaseline = "top";
+      this.ctx.textAlign = "left";
+      this.ctx.strokeText(`${(i - x) / SCALE}`, i, 0);
+      this.ctx.closePath();
     }
     for (let i = y - SCALE; i > 0; i -= SCALE) {
+      this.ctx.beginPath();
+      this.ctx.strokeStyle = lineColor;
       this.ctx.moveTo(0, i);
       this.ctx.lineTo(width, i);
+      this.ctx.stroke();
+      this.ctx.strokeStyle = textColor;
+      this.ctx.textBaseline = "top";
+      this.ctx.textAlign = "left";
+      this.ctx.strokeText(`${(y - i) / SCALE}`, 0, i);
+      this.ctx.closePath();
     }
-    this.ctx.stroke();
-    this.ctx.closePath();
+    for (let i = y + SCALE; i < height; i += SCALE) {
+      this.ctx.beginPath();
+      this.ctx.strokeStyle = lineColor;
+      this.ctx.moveTo(0, i);
+      this.ctx.lineTo(width, i);
+      this.ctx.stroke();
+      this.ctx.strokeStyle = textColor;
+      this.ctx.textBaseline = "bottom";
+      this.ctx.textAlign = "left";
+      this.ctx.strokeText(`${(y - i) / SCALE}`, 0, i);
+      this.ctx.closePath();
+    }
+
+    // this.ctx.stroke();
+    // this.ctx.closePath();
     this.ctx.beginPath();
     this.ctx.strokeStyle = "rgba(0,0,0,1)";
     this.ctx.lineWidth = 0.5;
