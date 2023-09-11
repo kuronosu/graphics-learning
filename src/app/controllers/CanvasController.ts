@@ -69,7 +69,7 @@ export default class CanvasController {
     this._registry.register("linea", 2, this.line);
     this._registry.register("xy", 2, this.xy);
     this._registry.register("color", 3, this.color);
-    this._registry.register("para", 3, this.each, ";");
+    this._registry.register("para", 3, this.for, ";");
     this._registry.register("poligono", -1, this.polygon);
 
     // ["arriba", [0, this.penUp, null]],
@@ -222,19 +222,12 @@ export default class CanvasController {
    * @param from - The starting distance from the current pen position (in arbitrary units).
    * @param to - The ending distance from the current pen position (in arbitrary units).
    * @param space - The space between each line segment (in arbitrary units).
-   * @param step - The length of each individual line segment (in arbitrary units). Default is 0.25.
    *
    * @returns An object containing information about the executed drawing command.
    */
-  each: Command = (
-    from: number,
-    to: number,
-    space: number,
-    step: number = 0.25
-  ) => {
-    // Handle special case when space is non-positive
-    if (space <= 0) {
-      return this.forward(to);
+  for: Command = (from: number, to: number, space: number) => {
+    if ((from < to && space <= 0) || (from > to && space >= 0)) {
+      throw new Error("Se detectó un bucle infinito");
     }
 
     // Capture initial pen and drawer states
@@ -243,20 +236,17 @@ export default class CanvasController {
 
     // Calculate the final position based on pen angle and given distances
     const finalPosition = {
-      x: Math.round(pen.x + (from + to) * Math.cos(pen.angle)),
-      y: Math.round(pen.y - (from + to) * Math.sin(pen.angle)),
+      x: Math.round(pen.x + to * Math.cos(pen.angle)),
+      y: Math.round(pen.y - to * Math.sin(pen.angle)),
     };
 
-    // Define a function to move the pen forward by a given distance and draw a line segment
-    const forward = (pen: IInmutablePen, drawer: Drawer, d: number) => {
-      const xf = pen.x + d * Math.cos(pen.angle);
-      const yf = pen.y - d * Math.sin(pen.angle);
-      drawer.line(
-        cartesianToCanvasPoint(pen.x, pen.y, this.ctx, SCALE),
-        cartesianToCanvasPoint(xf, yf, this.ctx, SCALE),
-        pen.color
-      );
-      return pen.move(xf, yf);
+    const point = (pen: IInmutablePen, drawer: Drawer) => {
+      const p = cartesianToCanvasPoint(pen.x, pen.y, this.ctx, SCALE);
+      drawer.pixel(p.x, p.y, pen.color);
+      drawer.pixel(p.x + 1, p.y, pen.color);
+      drawer.pixel(p.x - 1, p.y, pen.color);
+      drawer.pixel(p.x, p.y + 1, pen.color);
+      drawer.pixel(p.x, p.y - 1, pen.color);
     };
 
     // Define a function to move the pen forward without drawing
@@ -281,12 +271,11 @@ export default class CanvasController {
 
     // Loop to draw lines with specified step and space
     while (prevDistance >= restDistance) {
-      if (step + space > restDistance) {
-        pen = forward(pen, drawer, step > restDistance ? restDistance : step);
-        break;
-      }
-      pen = forward(pen, drawer, step);
-      pen = upForward(pen, space);
+      point(pen, drawer);
+      pen = pen.move(
+        pen.x + space * Math.cos(pen.angle),
+        pen.y - space * Math.sin(pen.angle)
+      );
       prevDistance = restDistance;
       restDistance = Math.hypot(
         finalPosition.x - pen.x,
