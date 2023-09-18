@@ -247,6 +247,10 @@ export default class CanvasController {
       drawer.pixel(p.x - 1, p.y, pen.color);
       drawer.pixel(p.x, p.y + 1, pen.color);
       drawer.pixel(p.x, p.y - 1, pen.color);
+      drawer.pixel(p.x + 1, p.y + 1, pen.color);
+      drawer.pixel(p.x - 1, p.y - 1, pen.color);
+      drawer.pixel(p.x + 1, p.y - 1, pen.color);
+      drawer.pixel(p.x - 1, p.y + 1, pen.color);
     };
 
     // Define a function to move the pen forward without drawing
