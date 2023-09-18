@@ -81,12 +81,16 @@ export default class CommandsController {
       } else if (e.key === "ArrowUp") {
         const prev = this.history.search.backward();
         if (prev) {
-          this._input.value = `${prev.command}(${prev.args.join(", ")})`;
+          this._input.value = `${prev.command}(${prev.args.join(
+            this.registry.getCommand(prev.command)?.sep ?? ", "
+          )})`;
         }
       } else if (e.key === "ArrowDown") {
         const next = this.history.search.forward();
         this._input.value = next
-          ? `${next.command}(${next.args.join(", ")})`
+          ? `${next.command}(${next.args.join(
+              this.registry.getCommand(next.command)?.sep ?? ", "
+            )})`
           : "";
       }
     });
