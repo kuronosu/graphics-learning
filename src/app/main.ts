@@ -14,7 +14,7 @@ import HistoryManager from "./utils/history.ts";
 (() => {
   document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div class="panels">
-    <div class="pl">
+    <div class="panel">
       <h3>Comandos</h3>
       <ul id="help">
         <li class="category"><span>Movimiento</span></li>
@@ -49,13 +49,13 @@ import HistoryManager from "./utils/history.ts";
       <canvas id="canvas" width="600" height="600"></canvas>
       <canvas id="pointer" width="600" height="600"></canvas>
     </div>
-    <div class="pl">
+    <div class="panel">
       <h3>Código</h3>
       <ol id="history"></ol>
       <div class="btns">
         <button id="upload">Abrir</button>
         <button id="download">Guardar</button>
-        <button id="downloadPython">Exportar Python</button>
+        <button style="display:none" id="downloadPython">Exportar Python</button>
       </div>
     </div>
   </div>

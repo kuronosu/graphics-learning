@@ -125,8 +125,8 @@ ul {
   margin: 0;
 }
 
-.pl {
-  padding-left: 16px;
+.panel {
+  padding: 0 16px;
 }
 
 #status {
@@ -171,4 +171,5 @@ h3 {
   background-color: #1313af;
   color: whitesmoke;
   cursor: pointer;
+  flex: 1;
 }
