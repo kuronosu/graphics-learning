@@ -55,7 +55,7 @@ import HistoryManager from "./utils/history.ts";
       <div class="btns">
         <button id="upload">Abrir</button>
         <button id="download">Guardar</button>
-        <button style="display:none" id="downloadPython">Exportar Python</button>
+        <button id="downloadPython">Exportar Python</button>
       </div>
     </div>
   </div>

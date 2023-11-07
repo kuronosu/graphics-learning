@@ -1,21 +1,12 @@
+import math
 import turtle as tur
 
-MULTIPLICADOR = 10
+MULTIPLICADOR = 20
 
-
-# limpiar() # not yet
-# arriba() # not yet
-# abajo() # not yet
-# relleno() # not yet
-# rotar(n) # done
-# circulo(n) # done
-# adelante(n) # done
-# atras(n) # done
-# cuadrado(n) # done
-# xy(n, n) # done
-# color(n, n, n) # done
-# para(n; n; n) # not yet
-# poligono(n, n, n, n) # done
+# Cannot be implemented
+# rellenar
+# Make no sense implement
+# limpiar
 
 
 def xy(x, y):
@@ -24,8 +15,12 @@ def xy(x, y):
     tur.pendown()
 
 
+def linea(x, y):
+    tur.goto(x * MULTIPLICADOR, y * MULTIPLICADOR)
+
+
 def rotar(angulo):
-    tur.left(angulo)
+    tur.right(angulo)
 
 
 def circulo(radio):
@@ -60,10 +55,8 @@ def color(r, g, b):
 def poligono(*puntos):
     if len(puntos) < 4:
         raise Exception("El polígono debe tener al menos 3 puntos")
-
     if len(puntos) % 2 != 0:
         raise Exception("Debes enviar un número par de parámetros")
-
     x = tur.xcor()
     y = tur.ycor()
     for i in range(0, len(puntos), 2):
@@ -71,38 +64,76 @@ def poligono(*puntos):
     tur.goto(x, y)
 
 
+def para(inicio, fin, paso):
+    if (inicio < fin and paso <= 0) or (inicio > fin and paso >= 0):
+        raise Exception("Se detectó un bucle infinito")
+    angle = math.radians(-tur.heading())
+    finalPosition = (
+        (tur.pos()[0] + fin * math.cos(angle)) * MULTIPLICADOR,
+        (tur.pos()[1] - fin * math.sin(angle)) * MULTIPLICADOR,
+    )
+    tur.penup()
+    tur.forward(inicio * MULTIPLICADOR)
+    restDistance = math.hypot(
+        (finalPosition[0] - tur.pos()[0]) * MULTIPLICADOR,
+        (finalPosition[1] - tur.pos()[1]) * MULTIPLICADOR,
+    )
+    prevDistance = restDistance
+    while prevDistance >= restDistance:
+        tur.dot(4, *map(int, tur.pencolor()))
+        tur.goto(
+            tur.pos()[0] + paso * math.cos(angle) * MULTIPLICADOR,
+            tur.pos()[1] - paso * math.sin(angle) * MULTIPLICADOR,
+        )
+        prevDistance = restDistance
+        restDistance = math.hypot(
+            (finalPosition[0] - tur.pos()[0]) * MULTIPLICADOR,
+            (finalPosition[1] - tur.pos()[1]) * MULTIPLICADOR,
+        )
+    tur.pendown()
+
+
+def rellenar():
+    print("No se puede implementar de igual forma en turtle")
+
+
 if __name__ == "__main__":
     # Configuracion inicial de turtle
+    tur.color((0, 0, 0))
     tur.degrees()
     tur.colormode(255)
-    tur.setup(600, 600)
-    tur.width(3)
-    # Esto es para evitar la animacion
-    tur.speed("fast")
-    # tur.tracer(0, 0)
+    tur.setup(30 * MULTIPLICADOR, 30 * MULTIPLICADOR)
+    tur.pensize(3)
+    tur.speed("fastest")
 
-    xy(-10, 10)
-    adelante(10)
-    rotar(-90)
-    adelante(10)
-    rotar(-90)
-    adelante(10)
-    rotar(-90)
-    adelante(10)
-    rotar(-90)
+    # Dibujar
+
+    xy(-5, 5)
+    adelante(5)
+    rotar(90)
+    adelante(5)
+    rotar(90)
+    adelante(5)
+    rotar(90)
+    adelante(5)
+    rotar(90)
     xy(0, 0)
     color(255, 0, 0)
-    circulo(25.5)
+    circulo(12.75)
     color(0, 0, 255)
-    rotar(45)
-    cuadrado(10)
-    rotar(180)
-    # para(5; 20; 1)
-    xy(-2, 2)
+    rotar(-45)
+    cuadrado(5)
+    rotar(-180)
+    para(2.5, 10, 0.5)
+    xy(-1, 1)
     color(0, 255, 0)
-    poligono(5, 2, -4, -3)
+    poligono(2.5, 1, -2, -1.5)
     color(25, 229, 230)
-    # relleno()
+    rotar(-50)
+    linea(0, -9)
+    xy(5, 0.5)
+    color(255, 255, 0)
+    xy(-6, 5)
+    color(215, 224, 206)
 
-    # tur.update()
-    tur.done()
+    tur.mainloop()
