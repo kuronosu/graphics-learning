@@ -1,46 +1,55 @@
-import CommandRegistry from "./command/registry.ts";
-import DownloadController from "./controllers/DownloadController.ts";
-import GridController from "./controllers/GridController.ts";
-import PenController from "./controllers/PenController.ts";
+import CommandRegistry from "./command/registry.ts"
+import DownloadController from "./controllers/DownloadController.ts"
+import GridController from "./controllers/GridController.ts"
+import PenController from "./controllers/PenController.ts"
 import {
   CanvasController,
   CommandsController,
   HistoryController,
-} from "./controllers/index.ts";
-import type { CommandResult } from "./index";
-import "./style.css";
-import HistoryManager from "./utils/history.ts";
-
-(() => {
+} from "./controllers/index.ts"
+import type { CommandResult } from "./index"
+import "./style.css"
+import HistoryManager from "./utils/history.ts"
+;(() => {
   document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div class="panels">
     <div class="panel">
       <h3>Comandos</h3>
       <ul id="help">
         <li class="category"><span>Movimiento</span></li>
-        <li><span>rotar(r)</span></li>
-        <li><span>adelante(d)</span></li>
-        <li><span>atras(d)</span></li>
-        <li><span>xy(x, y)</span></li>
+        <div>
+          <li><span>rotar(r)</span></li>
+          <li><span>adelante(d)</span></li>
+          <li><span>atras(d)</span></li>
+          <li><span>xy(x, y)</span></li>
+        </div>
 
         <li class="category"><span>Primitivas</span></li>
-        <li><span>linea(x, y)</span></li>
-        <li><span>circulo(r)</span></li>
-        <li><span>cuadrado(d)</span></li>
-        <li><span>poligono(x1, y1, x2, y2, ...)</span></li>
+        <div>
+          <li><span>linea(x, y)</span></li>
+          <li><span>circulo(r)</span></li>
+          <li><span>cuadrado(d)</span></li>
+          <li><span>poligono(x1, y1, x2, y2, ...)</span></li>
+        </div>
 
         <li class="category"><span>Utilidades</span></li>
-        <li><span>limpiar()</span></li>
-        <li><span>rellenar()</span></li>
-        <li><span>color(r, g, b)</span></li>
+        <div>
+          <li><span>limpiar()</span></li>
+          <li><span>rellenar()</span></li>
+          <li><span>color(r, g, b)</span></li>
+        </div>
 
         <li class="category"><span>Control de Flujo</span></li>
-        <li><span>para(inicio; fin; pasos)</span></li>
+        <div>
+          <li><span>para(inicio; fin; pasos)</span></li>
+        </div>
 
         <li class="category"><span>Atajos</span></li>
-        <li><span>ctrl+z Deshacer</span></li>
-        <li><span>ctrl+y Rehacer</span></li>
-        <li><span>ctrl+g Cuadrícula</span></li>
+        <div>
+          <li><span>ctrl+z Deshacer</span></li>
+          <li><span>ctrl+y Rehacer</span></li>
+          <li><span>ctrl+g Cuadrícula</span></li>
+        </div>
       </ul>
       <div id="status"></div>
     </div>
@@ -62,16 +71,22 @@ import HistoryManager from "./utils/history.ts";
   <div class="controls">
     <input placeholder="Ingresa un comando" type="text" id="entry" autocomplete="off" />
   </div>
-  `;
+  `
 
-  const history = new HistoryManager<CommandResult>();
-  const registry = new CommandRegistry();
+  document.querySelectorAll<HTMLLIElement>(".category").forEach((el) => {
+    el.addEventListener("click", () => {
+      el.nextElementSibling?.classList.toggle("hidden")
+    })
+  })
 
-  new HistoryController("#history", { history, registry });
-  new CanvasController("#canvas", { history, registry });
-  new PenController("#pointer", "#status", history);
-  new GridController("#grid");
-  const cc = new CommandsController("#entry", { history, registry });
+  const history = new HistoryManager<CommandResult>()
+  const registry = new CommandRegistry()
+
+  new HistoryController("#history", { history, registry })
+  new CanvasController("#canvas", { history, registry })
+  new PenController("#pointer", "#status", history)
+  new GridController("#grid")
+  const cc = new CommandsController("#entry", { history, registry })
   new DownloadController(
     {
       upload: "#upload",
@@ -79,7 +94,7 @@ import HistoryManager from "./utils/history.ts";
       downloadPython: "#downloadPython",
     },
     cc
-  );
+  )
 
   // cc.runScript(
   //   `
@@ -114,4 +129,4 @@ import HistoryManager from "./utils/history.ts";
   //   rellenar()
   //   `
   // ).catch(alert);
-})();
+})()
