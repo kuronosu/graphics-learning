@@ -129,8 +129,22 @@ ul {
   padding: 0 16px;
 }
 
-#status {
+.mt-auto {
   margin-top: auto;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+}
+
+.manual {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: #1313af;
 }
 
 h3 {

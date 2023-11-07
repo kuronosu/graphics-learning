@@ -1,8 +1,8 @@
-import { resolve } from "path";
-import { defineConfig } from "vite";
+import { resolve } from "path"
+import { defineConfig } from "vite"
 
-const root = resolve(__dirname, "src");
-const outDir = resolve(__dirname, "dist");
+const root = resolve(__dirname, "src")
+const outDir = resolve(__dirname, "dist")
 
 export default defineConfig({
   root,
@@ -13,7 +13,8 @@ export default defineConfig({
       input: {
         main: resolve(root, "index.html"),
         app: resolve(root, "app", "index.html"),
+        manual: resolve(root, "manual", "index.html"),
       },
     },
   },
-});
+})
